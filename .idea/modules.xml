@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/DjangoProject.iml" filepath="$PROJECT_DIR$/.idea/DjangoProject.iml" />
+      <module fileurl="file://D:/evaluation/evaluation/Madarom-project/fararano_mirindra_2/.idea/fararano_mirindra_2.iml" filepath="D:/evaluation/evaluation/Madarom-project/fararano_mirindra_2/.idea/fararano_mirindra_2.iml" />
     </modules>
   </component>
 </project>
