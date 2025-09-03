@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from SmartSaha.views import ParcelViewSet, ParcelPointViewSet, UserViewSet, SignupView, LoginView, CropViewSet, \
-    StatusCropViewSet, VarietyViewSet, ParcelCropViewSet
+    StatusCropViewSet, VarietyViewSet, ParcelCropViewSet, TaskViewSet, TaskPriorityViewSet, TaskStatusViewSet
 from SmartSaha.views.users import ForgotPasswordView, ResetPasswordView
 
 router = DefaultRouter()
@@ -29,6 +29,9 @@ router.register(r'crops', CropViewSet)
 router.register(r'status-crops', StatusCropViewSet)
 router.register(r'varieties', VarietyViewSet)
 router.register(r'parcel-crops', ParcelCropViewSet)
+router.register(r'tasks', TaskViewSet)
+router.register(r'task-priorities', TaskPriorityViewSet)
+router.register(r'task-statuses', TaskStatusViewSet)
 urlpatterns = [
     path('api/signup/', SignupView.as_view(), name='signup'),
     path('api/login/', LoginView.as_view(), name='login'),

@@ -153,3 +153,21 @@ Content-Type: application/json
   "area": 3.5,
   "status_id": 1
 }
+
+### Requête HTTP pour creer une taches
+
+POST http://localhost:8000/api/tasks/
+Content-Type: application/json
+
+{
+  "name": "Engrais champ A",
+  "description": "Mettre de l'engrais dans  le champ de riz",
+  "crop": 1,
+  "due_date": "2025-09-11",
+  "priority": 2,
+  "status": 1
+}
+
+### Requête HTTP pour lister tasks
+
+GET http://localhost:8000/api/tasks/
