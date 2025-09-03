@@ -17,5 +17,3 @@ class YieldRecord(models.Model):
     def __str__(self):
         return self.crop.parcel_name
 
-    def __init__(self):
-        super().__init__()

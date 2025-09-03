@@ -1,0 +1,103 @@
+### Créer un parcel
+POST http://localhost:8000/api/parcels/
+Accept: application/json
+Content-Type: application/json
+
+{
+  "owner":"6707a04b-3641-4245-a26b-9d001bafc29f" ,
+  "parcel_name": "Champ test",
+  "parcel_points": [
+    {"latitude": -18.879, "longitude": 47.507, "order": 1},
+    {"latitude": -18.880, "longitude": 47.508, "order": 2},
+    {"latitude": -18.881, "longitude": 47.507, "order": 3}
+  ]
+}
+
+### 1. Récupérer tous les utilisateurs
+GET http://127.0.0.1:8000/api/users/
+Content-Type: application/json
+
+
+### 2. Créer un nouvel utilisateur
+POST http://127.0.0.1:8000/api/users/
+Content-Type: application/json
+
+{
+  "username": "jean",
+  "email": "jean@example.com",
+  "first_name": "jean",
+  "last_name": "De Dieu",
+  "password": "test1234"
+}
+
+
+### 3. Récupérer un utilisateur par UUID
+GET http://127.0.0.1:8000/api/users/{{uuid}}
+Content-Type: application/json
+
+
+### 4. Mettre à jour un utilisateur (remplace {{uuid}})
+PUT http://127.0.0.1:8000/api/users/6707a04b-3641-4245-a26b-9d001bafc29f/
+Content-Type: application/json
+
+{
+  "username": "jeanDeDieu",
+  "email": "jean@example.com",
+  "first_name": "jean",
+  "last_name": "De Dieu",
+  "password":"test1234"
+}
+
+
+### 5. Supprimer un utilisateur (remplace {{uuid}})
+DELETE http://127.0.0.1:8000/api/users/{{uuid}}/
+
+### 6. Sign up
+POST http://localhost:8000/api/signup/
+Content-Type: application/json
+
+{
+  "username": "hugues",
+  "email": "hugueszeus@gmail.com",
+  "first_name": "hugues",
+  "last_name": "test",
+  "password": "test1234"
+}
+
+### 7. login
+POST http://localhost:8000/api/login/
+Content-Type: application/json
+
+{
+  "username": "hugues",
+  "password": "monNouveauMdp123"
+}
+
+
+### Forgot password
+POST http://localhost:8000/api/forgot-password/
+Content-Type: application/json
+Accept: application/json
+
+{
+  "email": "hugueszeus@gmail.com"
+}
+
+### Reset password
+POST http://localhost:8000/api/reset-password/NjgxZGU0ZTktNjY3ZC00YmVlLThjYTItZTkwYTFiODVlMGNm/cvjx7m-6fb13c825439a204eae011cfeebc3ce7/
+Content-Type: application/json
+Accept: application/json
+
+{
+  "token": "cvjx7m-6fb13c825439a204eae011cfeebc3ce7",
+  "new_password": "monNouveauMdp123"
+}
+
+
+### Requête HTTP pour SoilGrids
+GET https://rest.soilgrids.org/query?lon=47.507&lat=-18.879
+Accept: application/json
+
+### Requête HTTP pour OpenWeatherMap
+GET https://api.openweathermap.org/data/2.5/weather?lat=-18.879&lon=47.507&appid=TON_API_KEY&units=metric
+Accept: application/json

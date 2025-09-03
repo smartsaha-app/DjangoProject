@@ -14,5 +14,3 @@ class Message(models.Model):
     def __str__(self):
         return f"{self.sender.username} - {self.receiver.username} - {self.subject} "
 
-    def __init__(self):
-        super().__init__()

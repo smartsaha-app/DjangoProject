@@ -16,8 +16,7 @@ class Crop(models.Model):
     def __str__(self):
         return  f"{self.name} - {self.variety.name}"
 
-    def __init__(self):
-        super().__init__()
+
 
 class StatusCrop (models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -27,8 +26,7 @@ class StatusCrop (models.Model):
     def __str__(self):
         return self.name
 
-    def __init__(self):
-        super().__init__()
+
 
 class Variety(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -38,5 +36,3 @@ class Variety(models.Model):
     def __str__(self):
         return self.name
 
-    def __init__(self):
-        super().__init__()
