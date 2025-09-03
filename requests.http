@@ -101,3 +101,55 @@ Accept: application/json
 ### Requête HTTP pour OpenWeatherMap
 GET https://api.openweathermap.org/data/2.5/weather?lat=-18.879&lon=47.507&appid=TON_API_KEY&units=metric
 Accept: application/json
+
+
+### Requête HTTP pour Creer culture
+POST http://localhost:8000/api/crops/
+Content-Type: application/json
+
+{
+  "name": "Champ de riz",
+  "variety_id": 1
+}
+
+
+### Requête HTTP pour lister culture
+GET http://localhost:8000/api/crops/
+
+### Requête HTTP pour Supprimer culture
+
+DELETE http://localhost:8000/api/crops/<uuid>/
+
+### Requête HTTP pour creer status Culture
+
+POST http://localhost:8000/api/status-crops/
+Content-Type: application/json
+
+{
+  "name": "Planted",
+  "description": "Les cultures viennent d'être plantées"
+}
+
+### Requête HTTP pour creer varietes Culture
+
+POST http://localhost:8000/api/varieties/
+Content-Type: application/json
+
+{
+  "name": "Maïs hybride",
+  "description": "Variété résistante à la sécheresse"
+}
+
+### Requête HTTP pour lier parcelles et Cultures
+
+POST http://localhost:8000/api/parcel-crops/
+Content-Type: application/json
+
+{
+  "parcel": "37b485ea-9368-47fe-9f0a-80857eac12a6",
+  "crop_id": 1,
+  "planting_date": "2025-01-15",
+  "harvest_date": "2025-06-15",
+  "area": 3.5,
+  "status_id": 1
+}
