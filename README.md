@@ -1,4 +1,3 @@
-Bien sûr ! Voici un exemple de README pour votre projet basé sur la structure et les fichiers fournis :
 
 # SmartSahaProject
 
