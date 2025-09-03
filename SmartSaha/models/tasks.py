@@ -13,12 +13,9 @@ class Task(models.Model):
     status = models.ForeignKey('SmartSaha.TaskStatus', on_delete=models.SET_NULL, null=True, blank=True)    # ex: pending, done
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    user = models.ForeignKey('SmartSaha.User', on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.name} - {self.crop.parcel_name}"
-
-
+        return f"{self.name} - {self.crop.parcel_name} - {self.due_date} - {self.priority.name} - {self.status.name}"
 
 class TaskPriority (models.Model):
     id = models.BigAutoField(primary_key=True)
