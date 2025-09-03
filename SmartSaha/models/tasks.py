@@ -18,8 +18,7 @@ class Task(models.Model):
     def __str__(self):
         return f"{self.name} - {self.crop.parcel_name}"
 
-    def __init__(self):
-        super().__init__()
+
 
 class TaskPriority (models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -29,8 +28,7 @@ class TaskPriority (models.Model):
     def __str__(self):
         return self.name
 
-    def __init__(self):
-        super().__init__()
+
 
 class TaskStatus (models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -40,5 +38,3 @@ class TaskStatus (models.Model):
     def __str__(self):
         return self.name
 
-    def __init__(self):
-        super().__init__()

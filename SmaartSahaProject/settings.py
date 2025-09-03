@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'SmartSaha.apps.SmartsahaConfig',
     'rest_framework',
+    'rest_framework.authtoken',
 
 ]
 
@@ -127,3 +128,14 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTH_USER_MODEL = "SmartSaha.User"
+
+# Emails envoyés dans la console
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.zoho.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "contact@smart-saha.com"   # ex: contact@monentreprise.com
+EMAIL_HOST_PASSWORD = "Sm4rts4h@"          # ou mot de passe d’application Zoho
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

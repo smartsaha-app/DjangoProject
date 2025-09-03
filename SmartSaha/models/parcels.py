@@ -15,8 +15,7 @@ class Parcel(models.Model):
     def __str__(self):
         return f"{self.parcel_name} - {self.owner.username} "
 
-    def __init__(self):
-        super().__init__()
+
 
     def add_point(self, lat, lng, order):
         self.points.append({"lat": lat, "lng": lng, "order": order})
@@ -38,8 +37,7 @@ class ParcelPoint(models.Model):
     def __str__(self):
         return f"{self.parcel.parcel_name} - {self.order}"
 
-    def __init__(self):
-        super().__init__()
+
 
     class Meta:
         ordering = ['order']

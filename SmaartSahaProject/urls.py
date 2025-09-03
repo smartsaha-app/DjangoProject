@@ -17,13 +17,18 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from SmartSaha.views import ParcelViewSet, ParcelPointViewSet
+from SmartSaha.views import ParcelViewSet, ParcelPointViewSet, UserViewSet, SignupView, LoginView
+from SmartSaha.views.users import ForgotPasswordView, ResetPasswordView
 
 router = DefaultRouter()
 router.register(r'parcels', ParcelViewSet)
 router.register(r'parcel-points', ParcelPointViewSet)
-
+router.register(r'users', UserViewSet)
 urlpatterns = [
+    path('api/signup/', SignupView.as_view(), name='signup'),
+    path('api/login/', LoginView.as_view(), name='login'),
+    path("api/forgot-password/", ForgotPasswordView.as_view(), name="forgot-password"),
+    path("api/reset-password/<uidb64>/<token>/", ResetPasswordView.as_view(), name="reset-password"),
     path('api/', include(router.urls)),
     path('admin/', admin.site.urls),
 ]
