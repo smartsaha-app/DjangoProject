@@ -69,8 +69,8 @@ POST http://localhost:8000/api/login/
 Content-Type: application/json
 
 {
-  "username": "hugues",
-  "password": "monNouveauMdp123"
+  "username": "jeanDeDieu",
+  "password": "test1234"
 }
 
 
@@ -167,7 +167,70 @@ Content-Type: application/json
   "priority": 2,
   "status": 1
 }
+### LIST TASKS
+GET http://localhost:8000/api/tasks
+Authorization: Token 347be5de5501e526e9a14a279e18462463ee066c
+Accept: application/json
 
-### Requête HTTP pour lister tasks
+### 2. CREATE TASK
+POST http://localhost:8000/api/tasks/
+Authorization: Token 347be5de5501e526e9a14a279e18462463ee066c
+Content-Type: application/json
 
-GET http://localhost:8000/api/tasks/
+{
+  "name": "task du champ 1",
+  "description": "task le champ de maïs",
+  "crop": 1,
+  "due_date": "2025-09-04",
+  "priority": 1,
+  "status": 1
+}
+
+
+### 3. GET SINGLE TASK
+GET http://localhost:8000/api/tasks/1/
+Authorization: Token 347be5de5501e526e9a14a279e18462463ee066c
+
+
+### 4. UPDATE TASK
+PUT http://localhost:8000/api/tasks/1/
+Authorization: Token 347be5de5501e526e9a14a279e18462463ee066c
+Content-Type: application/json
+
+{
+  "name": "Arrosage champ 1 modifié",
+  "description": "Changer la description",
+  "due_date": "2025-09-06",
+  "priority": 2,
+  "status": 2
+}
+
+
+### 5. DELETE TASK
+DELETE http://localhost:8000/api/tasks/1/
+Authorization: Token 347be5de5501e526e9a14a279e18462463ee066c
+
+
+### 6. MARK TASK AS DONE
+POST http://localhost:8000/api/tasks/1/mark_done/
+Authorization: Token 347be5de5501e526e9a14a279e18462463ee066c
+
+
+### 7. UPCOMING TASKS
+GET http://localhost:8000/api/tasks/upcoming/
+Authorization: Token 347be5de5501e526e9a14a279e18462463ee066c
+
+
+### 8. DASHBOARD SUMMARY
+GET http://localhost:8000/api/tasks/dashboard/
+Authorization: Token 347be5de5501e526e9a14a279e18462463ee066c
+
+
+### 9. LIST PRIORITIES
+GET http://localhost:8000/api/task-priority/
+Authorization: Token 347be5de5501e526e9a14a279e18462463ee066c
+
+
+### 10. LIST STATUS
+GET http://localhost:8000/api/task-status/
+Authorization: Token 347be5de5501e526e9a14a279e18462463ee066c
