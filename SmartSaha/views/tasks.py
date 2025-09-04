@@ -18,7 +18,6 @@ class TaskViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         # Filtrer les tâches de l'utilisateur connecté
-
         return Task.objects.filter(parcelCrop__parcel__owner= self.request.user)
 
     @action(detail=True, methods=['post'])
@@ -58,9 +57,9 @@ class TaskViewSet(viewsets.ModelViewSet):
 class TaskStatusViewSet(viewsets.ModelViewSet):
     queryset = TaskStatus.objects.all()
     serializer_class = TaskStatusSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
 
 class TaskPriorityViewSet(viewsets.ModelViewSet):
     queryset = TaskPriority.objects.all()
     serializer_class = TaskPrioritySerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]

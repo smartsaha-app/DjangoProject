@@ -3,7 +3,7 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.mail import send_mail
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from rest_framework import generics, status, viewsets
+from rest_framework import generics, status, viewsets, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.authtoken.models import Token
@@ -19,25 +19,24 @@ def send_test_email():
         recipient_list=["test@gmail.com"],
         fail_silently=False,
     )
-
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]  # protégé
 
 class SignupView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSignupSerializer
-
+    permission_classes = []  # public
 
 class LoginView(APIView):
+    permission_classes = []  # public
     def post(self, request, *args, **kwargs):
         serializer = UserLoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
 
-        # Génère ou récupère un token
-        token, created = Token.objects.get_or_create(user=user)
-
+        token, _ = Token.objects.get_or_create(user=user)
         return Response({
             "token": token.key,
             "user": {
@@ -47,12 +46,13 @@ class LoginView(APIView):
                 "first_name": user.first_name,
                 "last_name": user.last_name
             }
-        }, status=status.HTTP_200_OK)
-
+        }, status=200)
 
 token_generator = PasswordResetTokenGenerator()
 
 class ForgotPasswordView(APIView):
+    permission_classes = []  # public
+
     def post(self, request):
         email = request.data.get("email")
         if not email:
@@ -89,6 +89,8 @@ class ForgotPasswordView(APIView):
         return Response({"message": "Password reset link sent"}, status=status.HTTP_200_OK)
 
 class ResetPasswordView(APIView):
+    permission_classes = []  # public
+
     def post(self, request, uidb64, token):
         # Décoder l'UID de l'utilisateur
         try:

@@ -5,15 +5,12 @@ from django.db import models
 # -------------------------------
 class YieldRecord(models.Model):
     id = models.BigAutoField(primary_key=True)
-    parcel = models.ForeignKey('SmartSaha.Parcel', on_delete=models.CASCADE)
-    crop = models.ForeignKey('SmartSaha.Crop', on_delete=models.CASCADE)
+    parcelCrop = models.ForeignKey('SmartSaha.ParcelCrop', on_delete=models.SET_NULL, null=True, blank=True)
     date = models.DateField()
     yield_amount = models.FloatField()
     area = models.FloatField()
     notes = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey('SmartSaha.User', on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
-        return self.crop.parcel_name
-
+        return f"{self.parcelCrop.parcel.parcel_name} - {self.date} - {self.yield_amount} - {self.area} - {self.created_at}"
