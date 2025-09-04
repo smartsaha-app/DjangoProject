@@ -30,8 +30,8 @@ router.register(r'status-crops', StatusCropViewSet)
 router.register(r'varieties', VarietyViewSet)
 router.register(r'parcel-crops', ParcelCropViewSet)
 router.register(r'tasks', TaskViewSet)
-router.register(r'task-priorities', TaskPriorityViewSet)
-router.register(r'task-statuses', TaskStatusViewSet)
+router.register(r'task-status', TaskStatusViewSet)
+router.register(r'task-priority', TaskPriorityViewSet)
 urlpatterns = [
     path('api/signup/', SignupView.as_view(), name='signup'),
     path('api/login/', LoginView.as_view(), name='login'),
