@@ -22,4 +22,9 @@ class VarietyViewSet(viewsets.ModelViewSet):
 class ParcelCropViewSet(viewsets.ModelViewSet):
     queryset = ParcelCrop.objects.all()
     serializer_class = ParcelCropSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Filtrer les tâches de l'utilisateur connecté
+        return ParcelCrop.objects.filter(parcel__owner=self.request.user)
+

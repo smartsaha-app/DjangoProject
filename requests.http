@@ -234,3 +234,62 @@ Authorization: Token 347be5de5501e526e9a14a279e18462463ee066c
 ### 10. LIST STATUS
 GET http://localhost:8000/api/task-status/
 Authorization: Token 347be5de5501e526e9a14a279e18462463ee066c
+
+
+
+### Base URL et Auth
+@baseUrl = http://localhost:8000/api
+@authHeader = Authorization: Token 347be5de5501e526e9a14a279e18462463ee066c
+
+### 1. LIST YIELD RECORDS
+GET {{baseUrl}}/yield-records/
+
+{{authHeader}}
+
+### 2. CREATE YIELD RECORD
+POST {{baseUrl}}/yield-records/
+
+{{authHeader}}
+Content-Type: application/json
+
+{
+  "parcelCrop": 1,
+  "date": "2025-09-08",
+  "yield_amount": 1200.5,
+  "area": 1.5,
+  "notes": "Première récolte de maïs"
+}
+
+### 3. GET SINGLE YIELD RECORD
+GET {{baseUrl}}/yield-records/1/
+
+{{authHeader}}
+
+### 4. UPDATE YIELD RECORD
+PUT {{baseUrl}}/yield-records/1/
+
+{{authHeader}}
+Content-Type: application/json
+
+{
+  "parcelCrop": 1,
+  "date": "2025-09-04",
+  "yield_amount": 1300.0,
+  "area": 1.5,
+  "notes": "Récolte mise à jour"
+}
+
+### 5. PATCH (UPDATE PARTIEL) YIELD RECORD
+PATCH {{baseUrl}}/yield-records/1/
+
+{{authHeader}}
+Content-Type: application/json
+
+{
+  "notes": "Correction mineure sur les notes"
+}
+
+### 6. DELETE YIELD RECORD
+DELETE {{baseUrl}}/yield-records/1/
+
+{{authHeader}}
