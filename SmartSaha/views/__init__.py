@@ -4,3 +4,4 @@ from .cultures import CropViewSet,VarietyViewSet,StatusCropViewSet,ParcelCropVie
 from .tasks import TaskViewSet, TaskStatusViewSet , TaskPriorityViewSet
 from .yelds import YieldRecordViewSet
 from .externalData import SoilDataView,ClimateDataView, DataViewSet
+from .deepseek import AgronomyAssistantAPIView
