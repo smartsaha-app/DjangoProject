@@ -19,7 +19,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from SmartSaha.views import ParcelViewSet, ParcelPointViewSet, UserViewSet, SignupView, LoginView, CropViewSet, \
     StatusCropViewSet, VarietyViewSet, ParcelCropViewSet, TaskViewSet, TaskPriorityViewSet, TaskStatusViewSet, \
-    YieldRecordViewSet
+    YieldRecordViewSet, SoilDataView, ClimateDataView, DataViewSet
 from SmartSaha.views.users import ForgotPasswordView, ResetPasswordView
 
 router = DefaultRouter()
@@ -34,11 +34,15 @@ router.register(r'tasks', TaskViewSet)
 router.register(r'task-status', TaskStatusViewSet)
 router.register(r'task-priority', TaskPriorityViewSet)
 router.register(r'yield-records', YieldRecordViewSet)
+router.register(r'external-data', DataViewSet, basename='external-data')
+
 urlpatterns = [
     path('api/signup/', SignupView.as_view(), name='signup'),
     path('api/login/', LoginView.as_view(), name='login'),
     path("api/forgot-password/", ForgotPasswordView.as_view(), name="forgot-password"),
     path("api/reset-password/<uidb64>/<token>/", ResetPasswordView.as_view(), name="reset-password"),
+    path("api/soil-data/", SoilDataView.as_view(), name="soil-data"),
+    path("api/climate-data/", ClimateDataView.as_view(), name="climate-data"),
     path('api/', include(router.urls)),
     path('admin/', admin.site.urls),
 ]

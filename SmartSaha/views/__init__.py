@@ -3,3 +3,4 @@ from  .users import UserViewSet, LoginView, SignupView,ForgotPasswordView,ResetP
 from .cultures import CropViewSet,VarietyViewSet,StatusCropViewSet,ParcelCropViewSet
 from .tasks import TaskViewSet, TaskStatusViewSet , TaskPriorityViewSet
 from .yelds import YieldRecordViewSet
+from .externalData import SoilDataView,ClimateDataView, DataViewSet
