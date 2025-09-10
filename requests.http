@@ -293,3 +293,26 @@ Content-Type: application/json
 DELETE {{baseUrl}}/yield-records/1/
 
 {{authHeader}}
+
+
+### Requête NASA POWER - Données météorologiques quotidiennes
+GET https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M,T2M_MAX,T2M_MIN,PRECTOTCORR,EVLAND,GWETPROF&community=RE&longitude=47.5&latitude=-18.9&start=20250101&end=20250107&format=JSON
+Accept: application/json
+
+
+### Requête SoilGrids - Données du sol
+GET https://rest.isric.org/soilgrids/v2.0/properties/query?lon=47.5&lat=-18.9&property=phh2o&property=soc&property=nitrogen&property=sand&property=clay&property=silt&depth=0-5cm&value=mean
+Accept: application/json
+
+### Fire detector
+GET https://firms.modaps.eosdis.nasa.gov/api/area/csv?lat1=-25.0&lon1=45.0&lat2=-24.5&lon2=46.0&begin=2025-09-01&end=2025-09-09&key=VOTRE_CLE_API
+Accept: text/csv
+
+### Fire detector
+GET https://firms.modaps.eosdis.nasa.gov/data/csv/MODIS_C6_1_Global_24h.csv
+Accept: text/csv
+
+
+### Télécharger le CSV FIRMS 24h global
+GET https://firms.modaps.eosdis.nasa.gov/data/csv/MODIS_C6_1_Global_24h.csv
+Accept: text/csv
