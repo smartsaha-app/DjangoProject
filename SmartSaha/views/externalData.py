@@ -8,6 +8,7 @@ from rest_framework import status, viewsets
 from SmartSaha.models import Parcel, SoilData, ClimateData
 from SmartSaha.services.climate import get_climate_data
 from SmartSaha.services.soilsGrids import get_soil_data
+import requests
 
 
 class SoilDataView(APIView):
@@ -44,8 +45,9 @@ class DataViewSet(viewsets.ViewSet):
     @action(detail=True, methods=["post"])
     def fetch_soil(self, request, pk=None):
         parcel = Parcel.objects.get(pk=pk)
-        lat, lon = parcel.latitude, parcel.longitude
-
+        # Récupère le premier point du JSON
+        first_point = parcel.points[0]  # si points est une liste
+        lat, lon = first_point["lat"], first_point["lng"]
         url = f"https://rest.isric.org/soilgrids/v2.0/properties/query?lon={lon}&lat={lat}&property=phh2o&property=soc&property=nitrogen&property=sand&property=clay&property=silt&depth=0-5cm&value=mean"
         resp = requests.get(url)
         if resp.status_code == 200:
@@ -56,7 +58,9 @@ class DataViewSet(viewsets.ViewSet):
     @action(detail=True, methods=["post"])
     def fetch_climate(self, request, pk=None):
         parcel = Parcel.objects.get(pk=pk)
-        lat, lon = parcel.latitude, parcel.longitude
+        # Récupère le premier point du JSON
+        first_point = parcel.points[0]  # si points est une liste
+        lat, lon = first_point["lat"], first_point["lng"]
 
         start = request.data.get("start", "20250101")
         end = request.data.get("end", "20250107")
