@@ -9,8 +9,9 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+import os
 from pathlib import Path
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,7 +29,12 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
+# Initialiser environ
+env = environ.Env(
+    DEBUG=(bool, False)
+)
 # Application definition
+environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -148,3 +154,6 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "contact@smart-saha.com"   # ex: contact@monentreprise.com
 EMAIL_HOST_PASSWORD = "Sm4rts4h@"          # ou mot de passe d’application Zoho
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# Clé API OpenRouter
+OPENROUTER_API_KEY = env("OPENROUTER_API_KEY")

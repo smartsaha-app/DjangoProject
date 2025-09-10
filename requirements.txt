@@ -1,3 +1,5 @@
+django-environ
+openai
 folium
 Django~=5.2.5
 djangorestframework>=3.14,<4.0

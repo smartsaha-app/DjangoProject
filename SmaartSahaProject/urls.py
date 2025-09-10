@@ -19,7 +19,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from SmartSaha.views import ParcelViewSet, ParcelPointViewSet, UserViewSet, SignupView, LoginView, CropViewSet, \
     StatusCropViewSet, VarietyViewSet, ParcelCropViewSet, TaskViewSet, TaskPriorityViewSet, TaskStatusViewSet, \
-    YieldRecordViewSet, SoilDataView, ClimateDataView, DataViewSet, ParcelFullDataViewSet
+    YieldRecordViewSet, SoilDataView, ClimateDataView, DataViewSet, ParcelFullDataViewSet, AgronomyAssistantAPIView
 from SmartSaha.views.users import ForgotPasswordView, ResetPasswordView
 
 router = DefaultRouter()
@@ -37,7 +37,6 @@ router.register(r'yield-records', YieldRecordViewSet)
 router.register(r'external-data', DataViewSet, basename='external-data')
 router.register(r'parcels-full', ParcelFullDataViewSet, basename='parcels-full')
 
-
 urlpatterns = [
     path('api/signup/', SignupView.as_view(), name='signup'),
     path('api/login/', LoginView.as_view(), name='login'),
@@ -47,4 +46,7 @@ urlpatterns = [
     path("api/climate-data/", ClimateDataView.as_view(), name="climate-data"),
     path('api/', include(router.urls)),
     path('admin/', admin.site.urls),
+
+    path("api/assistant-agronome/", AgronomyAssistantAPIView.as_view(), name="assistant-agronome"),
+
 ]

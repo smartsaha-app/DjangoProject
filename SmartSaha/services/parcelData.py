@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 import requests
 from django.utils import timezone
 
@@ -52,6 +54,7 @@ class ParcelDataService:
         return None
 
     @staticmethod
+    @lru_cache(maxsize=128)
     def build_parcel_crops(parcel):
         parcel_crops_info = []
         for pc in parcel.parcel_crops.all():
@@ -82,6 +85,7 @@ class ParcelDataService:
         return parcel_crops_info
 
     @staticmethod
+    @lru_cache(maxsize=128)
     def build_yield_records(parcel):
         yield_records = []
         for pc in parcel.parcel_crops.all():
