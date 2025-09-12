@@ -22,7 +22,8 @@ from rest_framework import permissions
 from rest_framework.routers import DefaultRouter
 from SmartSaha.views import ParcelViewSet, ParcelPointViewSet, UserViewSet, SignupView, LoginView, CropViewSet, \
     StatusCropViewSet, VarietyViewSet, ParcelCropViewSet, TaskViewSet, TaskPriorityViewSet, TaskStatusViewSet, \
-    YieldRecordViewSet, SoilDataView, ClimateDataView, DataViewSet, ParcelFullDataViewSet, AgronomyAssistantAPIView
+    YieldRecordViewSet, SoilDataView, ClimateDataView, DataViewSet, ParcelFullDataViewSet, AgronomyAssistantAPIView, \
+    YieldForecastView, YieldAnalyticsView
 from SmartSaha.views.users import ForgotPasswordView, ResetPasswordView
 
 schema_view = get_schema_view(
@@ -66,5 +67,8 @@ urlpatterns = [
 
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    path('forecast/<int:parcel_crop_id>/', YieldForecastView.as_view(), name='yield_forecast'),
+
+    path("analytics/yields/", YieldAnalyticsView.as_view(), name="yield-analytics"),
 
 ]
