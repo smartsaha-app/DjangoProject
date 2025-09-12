@@ -1,3 +1,5 @@
+tiktoken
+httpx
 django-environ
 openai
 folium

@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from pathlib import Path
 import environ
+from dotenv import load_dotenv
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -35,6 +37,7 @@ env = environ.Env(
 )
 # Application definition
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
+OPENROUTER_API_KEY = env("OPENROUTER_API_KEY")
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -46,6 +49,7 @@ INSTALLED_APPS = [
     'SmartSaha.apps.SmartsahaConfig',
     'rest_framework',
     'rest_framework.authtoken',
+    'drf_yasg',
 
 ]
 
@@ -156,4 +160,3 @@ EMAIL_HOST_PASSWORD = "Sm4rts4h@"          # ou mot de passe d’application Zoh
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # Clé API OpenRouter
-OPENROUTER_API_KEY = env("OPENROUTER_API_KEY")

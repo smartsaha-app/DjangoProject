@@ -5,9 +5,8 @@ import asyncio
 
 class ContextBuilder:
 
-
     @staticmethod
-    async def build_context(parcel_uuid=None, user_modules=None):
+    def build_context(parcel_uuid=None, user_modules=None):
         """
         Construit le contexte complet pour l'assistant agronome.
         user_modules = {
@@ -30,20 +29,16 @@ class ContextBuilder:
             except Parcel.DoesNotExist:
                 context.append("Parcelle inconnue")
 
-        tasks = []
-
-        # Sol et Climat via ParcelDataService (async si possible)
+        # Sol et Climat (synchrone)
         if parcel and user_modules.get("soil", False):
-            tasks.append(ParcelDataService.fetch_soil(parcel))
+            soil_info = ParcelDataService.fetch_soil(parcel)  # doit être synchrone
+            if soil_info:
+                context.append(soil_info)
 
         if parcel and user_modules.get("weather", False):
-            tasks.append(ParcelDataService.fetch_climate(parcel))
-
-        # Exécuter fetchs en parallèle
-        results = await asyncio.gather(*tasks, return_exceptions=True)
-        for r in results:
-            if r:
-                context.append(r)
+            climate_info = ParcelDataService.fetch_climate(parcel)  # doit être synchrone
+            if climate_info:
+                context.append(climate_info)
 
         # Cultures et tâches
         if parcel and user_modules.get("crops", False):

@@ -16,12 +16,27 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from drf_yasg import openapi
+from drf_yasg.views import get_schema_view
+from rest_framework import permissions
 from rest_framework.routers import DefaultRouter
 from SmartSaha.views import ParcelViewSet, ParcelPointViewSet, UserViewSet, SignupView, LoginView, CropViewSet, \
     StatusCropViewSet, VarietyViewSet, ParcelCropViewSet, TaskViewSet, TaskPriorityViewSet, TaskStatusViewSet, \
     YieldRecordViewSet, SoilDataView, ClimateDataView, DataViewSet, ParcelFullDataViewSet, AgronomyAssistantAPIView
 from SmartSaha.views.users import ForgotPasswordView, ResetPasswordView
 
+schema_view = get_schema_view(
+   openapi.Info(
+      title="Smart Saha API",
+      default_version='v1',
+      description="Documentation des endpoints de Smart Saha",
+      terms_of_service="https://www.google.com/policies/terms/",
+      contact=openapi.Contact(email="contact@smartsaha.mg"),
+      license=openapi.License(name="MIT License"),
+   ),
+   public=True,
+   permission_classes=(permissions.AllowAny,),
+)
 router = DefaultRouter()
 router.register(r'parcels', ParcelViewSet)
 router.register(r'parcel-points', ParcelPointViewSet)
@@ -48,5 +63,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     path("api/assistant-agronome/", AgronomyAssistantAPIView.as_view(), name="assistant-agronome"),
+
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 
 ]
