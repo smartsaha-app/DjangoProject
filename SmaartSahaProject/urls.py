@@ -23,7 +23,7 @@ from rest_framework.routers import DefaultRouter
 from SmartSaha.views import ParcelViewSet, ParcelPointViewSet, UserViewSet, SignupView, LoginView, CropViewSet, \
     StatusCropViewSet, VarietyViewSet, ParcelCropViewSet, TaskViewSet, TaskPriorityViewSet, TaskStatusViewSet, \
     YieldRecordViewSet, SoilDataView, ClimateDataView, DataViewSet, ParcelFullDataViewSet, AgronomyAssistantAPIView, \
-    YieldForecastView, YieldAnalyticsView
+    YieldForecastView, YieldAnalyticsView, DashboardViewSet
 from SmartSaha.views.users import ForgotPasswordView, ResetPasswordView
 
 schema_view = get_schema_view(
@@ -52,6 +52,8 @@ router.register(r'task-priority', TaskPriorityViewSet)
 router.register(r'yield-records', YieldRecordViewSet)
 router.register(r'external-data', DataViewSet, basename='external-data')
 router.register(r'parcels-full', ParcelFullDataViewSet, basename='parcels-full')
+
+router.register(r'dashboard', DashboardViewSet, basename='dashboard')
 
 urlpatterns = [
     path('api/signup/', SignupView.as_view(), name='signup'),

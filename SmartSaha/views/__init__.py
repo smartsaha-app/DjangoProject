@@ -6,3 +6,4 @@ from .yelds import YieldRecordViewSet,YieldAnalyticsView
 from .externalData import SoilDataView,ClimateDataView, DataViewSet
 from .deepseek import AgronomyAssistantAPIView
 from .forecast import YieldForecastView
+from .dashboard import DashboardViewSet

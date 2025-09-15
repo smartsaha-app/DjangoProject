@@ -1,4 +1,4 @@
-from .users import User
+from .users import User,BIReport
 from .cultures import Crop, Variety, StatusCrop, ParcelCrop
 from .messages import Message
 from .parcels import Parcel, ParcelPoint
