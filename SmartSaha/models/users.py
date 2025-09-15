@@ -27,3 +27,21 @@ class User(AbstractUser):
         help_text='Specific permissions for this user.',
         verbose_name='user permissions',
     )
+
+
+class BIReport(models.Model):
+    """
+    Stocke les rapports agrégés pour le dashboard BI.
+    Permet de pré-calculer et sauvegarder des résumés pour les entreprises.
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    filters = models.JSONField(null=True, blank=True)        # filtres appliqués
+    data_snapshot = models.JSONField(null=True, blank=True)  # données agrégées
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.name} - {self.user.username}"
