@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Assistant Agronome</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center py-10">
+  <div class="w-full max-w-3xl bg-white shadow-lg rounded-lg p-8">
+    <h1 class="text-2xl font-bold text-green-700 mb-6">Assistant IA Agronome</h1>
+
+    <form id="assistantForm" class="space-y-6">
+      <!-- Question -->
+      <div>
+        <label class="block text-gray-700 font-medium mb-2">Question</label>
+        <textarea id="question" rows="3" class="w-full border rounded-lg p-3 focus:ring-2 focus:ring-green-500" placeholder="Pose ta question à l’IA...">Est-ce que tu pourrais prédire mon prochain rendement ?</textarea>
+      </div>
+
+      <!-- Culture + Parcelle -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-gray-700 font-medium mb-2">Culture</label>
+          <input type="text" id="crop_name" value="maïs" class="w-full border rounded-lg p-3 focus:ring-2 focus:ring-green-500">
+        </div>
+        <div>
+          <label class="block text-gray-700 font-medium mb-2">Parcelle ID</label>
+          <input type="text" id="parcel_id" value="37b485ea-9368-47fe-9f0a-80857eac12a6" class="w-full border rounded-lg p-3 focus:ring-2 focus:ring-green-500">
+        </div>
+      </div>
+
+      <!-- Modules -->
+      <div>
+        <h3 class="text-lg font-semibold text-gray-700 mb-3">Données à envoyer à l’IA :</h3>
+        <div class="grid grid-cols-2 gap-3">
+          <label class="flex items-center space-x-2">
+            <input type="checkbox" name="modules" value="parcel" checked class="text-green-600"> <span>Parcelle</span>
+          </label>
+          <label class="flex items-center space-x-2">
+            <input type="checkbox" name="modules" value="crop" checked class="text-green-600"> <span>Culture</span>
+          </label>
+          <label class="flex items-center space-x-2">
+            <input type="checkbox" name="modules" value="soil" checked class="text-green-600"> <span>Sol</span>
+          </label>
+          <label class="flex items-center space-x-2">
+            <input type="checkbox" name="modules" value="weather" checked class="text-green-600"> <span>Météo</span>
+          </label>
+          <label class="flex items-center space-x-2">
+            <input type="checkbox" name="modules" value="tasks" class="text-green-600"> <span>Tâches</span>
+          </label>
+          <label class="flex items-center space-x-2">
+            <input type="checkbox" name="modules" value="yield_records" checked class="text-green-600"> <span>Historique de rendement</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Bouton -->
+      <div class="flex justify-end">
+        <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-lg shadow hover:bg-green-700">
+          Envoyer à l’IA
+        </button>
+      </div>
+    </form>
+
+    <!-- Résultat -->
+    <div class="mt-8">
+      <h2 class="text-lg font-semibold text-gray-700">Réponse IA :</h2>
+      <pre id="result" class="bg-gray-100 border rounded-lg p-4 mt-2 text-sm text-gray-800 whitespace-pre-wrap"></pre>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("assistantForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        const modules = {};
+        document.querySelectorAll("input[name='modules']").forEach(cb => {
+            modules[cb.value] = cb.checked;
+        });
+
+        const payload = {
+            question: document.getElementById("question").value,
+            question_type: "parcel",
+            parcel_id: document.getElementById("parcel_id").value,
+            crop_name: document.getElementById("crop_name").value,
+            user_modules: modules
+        };
+
+        // Affichage loader
+        document.getElementById("result").textContent = "Chargement...";
+        document.getElementById("result").classList.add("opacity-50");
+        const url = `/api/assistant-agronome/`;
+        fetch(url, {
+            method: "POST",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": "Token 347be5de5501e526e9a14a279e18462463ee066c"
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(res => {
+            if (!res.ok) throw new Error(`Erreur HTTP ${res.status}`);
+            return res.json();
+        })
+        .then(data => {
+            document.getElementById("result").textContent = data.answer;
+            document.getElementById("result").classList.remove("opacity-50");
+        })
+        .catch(err => {
+            document.getElementById("result").textContent = `Erreur : ${err.message}`;
+            document.getElementById("result").classList.remove("opacity-50");
+        });
+    });
+
+  </script>
+</body>
+</html>

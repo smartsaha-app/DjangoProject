@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Smart Saha - Tâches</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+</head>
+{% if tasks %}
+  <!-- afficher la liste des tâches -->
+{% else %}
+  Aucune tâche.
+{% endif %}
+<body class="bg-gray-50 font-sans">
+    <header class="bg-white shadow p-4 flex justify-between items-center">
+        <h1 class="text-xl font-bold text-green-600">Tâches</h1>
+        <a href="{% url 'dashboard' %}" class="text-green-600 hover:text-green-800">Retour au Dashboard</a>
+    </header>
+
+    <main class="p-4 max-w-4xl mx-auto">
+        <div class="bg-white rounded-lg shadow overflow-x-auto">
+            <table class="min-w-full">
+                <thead>
+                    <tr class="text-left text-sm text-gray-500 border-b bg-gray-50">
+                        <th class="px-4 py-3">Parcelle / Culture</th>
+                        <th class="px-4 py-3">Tâche</th>
+                        <th class="px-4 py-3">Date prévue</th>
+                        <th class="px-4 py-3">Statut</th>
+                        <th class="px-4 py-3">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in tasks %}
+                    <tr class="text-sm border-b hover:bg-gray-50">
+                        <td class="px-4 py-3">{{ task.parcelCrop.parcel.parcel_name }} / {{ task.parcelCrop.crop.name }}</td>
+                        <td class="px-4 py-3">{{ task.name }}</td>
+                        <td class="px-4 py-3">{{ task.date|date:"d/m/Y" }}</td>
+                        <td class="px-4 py-3">
+                            <span class="px-2 py-1 rounded-full text-white text-xs
+                                {% if task.status.name == 'Done' %}bg-green-600
+                                {% elif task.status.name == 'Pending' %}bg-yellow-500
+                                {% else %}bg-gray-400{% endif %}">
+                                {{ task.status.name }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 flex space-x-2">
+                            <button class="text-blue-600 hover:text-blue-800">
+                                <i data-feather="edit" class="w-4 h-4"></i>
+                            </button>
+                            <button class="text-red-600 hover:text-red-800">
+                                <i data-feather="trash" class="w-4 h-4"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center text-gray-500 py-4">Aucune tâche trouvée.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        feather.replace();
+    </script>
+</body>
+</html>

@@ -23,8 +23,11 @@ from rest_framework.routers import DefaultRouter
 from SmartSaha.views import ParcelViewSet, ParcelPointViewSet, UserViewSet, SignupView, LoginView, CropViewSet, \
     StatusCropViewSet, VarietyViewSet, ParcelCropViewSet, TaskViewSet, TaskPriorityViewSet, TaskStatusViewSet, \
     YieldRecordViewSet, SoilDataView, ClimateDataView, DataViewSet, ParcelFullDataViewSet, AgronomyAssistantAPIView, \
-    YieldForecastView, YieldAnalyticsView, DashboardViewSet
+    YieldForecastView, YieldAnalyticsView, DashboardViewSet, dashboard, tasks_view, parcel_full_data_page, \
+    assistant_agronome_page, assistant_agronome_api
 from SmartSaha.views.users import ForgotPasswordView, ResetPasswordView
+
+from django.contrib.auth import views as auth_views
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -52,7 +55,6 @@ router.register(r'task-priority', TaskPriorityViewSet)
 router.register(r'yield-records', YieldRecordViewSet)
 router.register(r'external-data', DataViewSet, basename='external-data')
 router.register(r'parcels-full', ParcelFullDataViewSet, basename='parcels-full')
-
 router.register(r'dashboard', DashboardViewSet, basename='dashboard')
 
 urlpatterns = [
@@ -72,5 +74,17 @@ urlpatterns = [
     path('forecast/<int:parcel_crop_id>/', YieldForecastView.as_view(), name='yield_forecast'),
 
     path("analytics/yields/", YieldAnalyticsView.as_view(), name="yield-analytics"),
+
+
+
+    path("dashboard/", dashboard, name="dashboard"),
+    path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
+    path('tasks/', tasks_view, name='tasks'),
+    path('parcels/<uuid:parcel_uuid>/view/', parcel_full_data_page, name='parcel-full-data-page'),
+
+    path("assistant-agronome/", assistant_agronome_page, name="assistant_agronome_page"),
+
+    path("api/assistant-agronome/", assistant_agronome_api, name="assistant_agronome_api"),
 
 ]

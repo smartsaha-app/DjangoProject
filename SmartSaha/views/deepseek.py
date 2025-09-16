@@ -1,3 +1,9 @@
+import json
+
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -33,3 +39,43 @@ class AgronomyAssistantAPIView(APIView):
                 "modules": user_modules
             }
         }, status=status.HTTP_200_OK)
+
+@login_required(login_url="login")
+def assistant_agronome_page(request):
+    """
+    Vue qui rend la page HTML avec le formulaire.
+    """
+    return render(request, "assistant_agronome.html")
+
+
+@csrf_exempt
+@login_required(login_url="login")
+def assistant_agronome_api(request):
+    """
+    Vue qui reçoit la question, appelle le moteur IA et renvoie la réponse JSON.
+    """
+    if request.method == "POST":
+        try:
+            payload = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Payload JSON invalide"}, status=400)
+
+        question = payload.get("question")
+        question_type = payload.get("question_type")
+        parcel_id = payload.get("parcel_id")
+        crop_name = payload.get("crop_name")
+        user_modules = payload.get("user_modules", {})
+
+        if not question or not question_type:
+            return JsonResponse({"error": "Champs obligatoires manquants"}, status=400)
+
+            # On passe tout à DeepSeekClient
+        response = deepseek.ask(
+            question=question,
+            parcel_uuid=parcel_id,
+            user_modules=user_modules
+        )
+
+        return JsonResponse(response, safe=False)
+
+    return JsonResponse({"error": "Méthode non autorisée"}, status=405)

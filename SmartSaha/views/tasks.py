@@ -1,12 +1,14 @@
 from datetime import timedelta
 
+from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
+from django.shortcuts import render
 from django.utils import timezone
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from SmartSaha.models import Task, TaskPriority, TaskStatus
+from SmartSaha.models import Task, TaskPriority, TaskStatus, ParcelCrop
 from SmartSaha.serializers import TaskSerializer, TaskPrioritySerializer, TaskStatusSerializer
 
 
@@ -63,3 +65,19 @@ class TaskPriorityViewSet(viewsets.ModelViewSet):
     queryset = TaskPriority.objects.all()
     serializer_class = TaskPrioritySerializer
     permission_classes = [permissions.AllowAny]
+
+
+@login_required(login_url='login')
+def tasks_view(request):
+    # Récupère toutes les parcelles de l'utilisateur
+    parcel_crops = ParcelCrop.objects.filter(parcel__owner=request.user)
+
+    # Récupère toutes les tâches liées à ces parcelles
+    tasks = Task.objects.filter(parcelCrop__in=parcel_crops).select_related('parcelCrop', 'status')
+    if tasks is None:
+        return  render(request, 'tasks.html', {
+            'tasks': None
+        })
+    return render(request, 'tasks.html', {
+        'tasks': tasks
+    })

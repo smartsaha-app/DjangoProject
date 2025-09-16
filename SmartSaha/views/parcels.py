@@ -1,4 +1,5 @@
 from django.http import JsonResponse
+from django.shortcuts import render
 from django.views import View
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
@@ -68,3 +69,7 @@ class ParcelFullDataViewSet(viewsets.ViewSet):
         }
 
         return Response(response)
+
+
+def parcel_full_data_page(request, parcel_uuid):
+    return render(request, "parcel_full_data.html", {"parcel_uuid": parcel_uuid})
