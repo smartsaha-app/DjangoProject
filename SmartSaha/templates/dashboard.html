@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Saha - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .sidebar {
+            transition: all 0.3s;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar-open {
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Mobile Menu Button -->
+    <button id="menuBtn" class="md:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow">
+        <i data-feather="menu"></i>
+    </button>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar fixed inset-y-0 left-0 w-64 bg-white shadow-lg z-40">
+        <div class="p-4 border-b">
+            <h1 class="text-xl font-bold text-green-600">Smart Saha</h1>
+        </div>
+        <nav class="p-4">
+            <ul class="space-y-2">
+                <li>
+                    <a href="#dashboard" class="flex items-center p-2 text-green-600 rounded-lg bg-green-50">
+                        <i data-feather="home" class="w-5 h-5"></i>
+                        <span class="ml-3">Accueil</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#parcelles" class="flex items-center p-2 text-gray-600 rounded-lg hover:bg-green-50">
+                        <i data-feather="map" class="w-5 h-5"></i>
+                        <span class="ml-3">Parcelles</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#statistiques" class="flex items-center p-2 text-gray-600 rounded-lg hover:bg-green-50">
+                        <i data-feather="bar-chart-2" class="w-5 h-5"></i>
+                        <span class="ml-3">Statistiques</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#previsions" class="flex items-center p-2 text-gray-600 rounded-lg hover:bg-green-50">
+                        <i data-feather="cloud" class="w-5 h-5"></i>
+                        <span class="ml-3">Prévisions</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#parametres" class="flex items-center p-2 text-gray-600 rounded-lg hover:bg-green-50">
+                        <i data-feather="settings" class="w-5 h-5"></i>
+                        <span class="ml-3">Paramètres</span>
+                    </a>
+                </li>
+            </ul>
+
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="md:ml-64">
+        <!-- Header -->
+        <header class="bg-white shadow-sm p-4 flex justify-between items-center">
+            <h2 class="text-lg font-semibold text-gray-800" id="pageTitle">Dashboard</h2>
+            <a href="{% url 'assistant_agronome_page' %}">
+              <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                Assistant IA Agronome
+              </button>
+            </a>
+
+            <div class="flex items-center space-x-4">
+                <button class="p-2 rounded-full hover:bg-gray-100">
+                    <i data-feather="bell"></i>
+                </button>
+                <div class="flex items-center">
+                    <img src="{{ avatar_url }}" alt="Profile" class="w-8 h-8 rounded-full">
+                    <span class="ml-2 text-sm font-medium">{{ user_display }}</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <main class="p-4">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="page-section">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <!-- Nombre de parcelles -->
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-green-100 text-green-600">
+                            <i data-feather="map"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm text-gray-500">Parcelles</p>
+                            <p class="text-xl font-semibold">{{ dashboard.parcels|length }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rendement total -->
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                            <i data-feather="bar-chart-2"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm text-gray-500">Rendement total</p>
+                            <p class="text-xl font-semibold">{{ rendement_total }} kg</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Température moyenne -->
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                            <i data-feather="thermometer"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm text-gray-500">Température moyenne</p>
+                            <p class="text-xl font-semibold">
+                                {{ dashboard.climate_summary.0.climate_summary.avg_temperature|floatformat:1 }} °C
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tâches -->
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                            <i data-feather="check-circle"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm text-gray-500">Tâches complétées</p>
+                            <p class="text-xl font-semibold">
+                                {{ dashboard.task_summary.0.task_summary.completed_tasks }}
+                                /
+                                {{ dashboard.task_summary.0.task_summary.total_tasks }}
+                            </p>
+                        <a href="{% url 'tasks' %}" class="flex items-center p-2 text-gray-600 rounded-lg hover:bg-green-50">
+                            <i data-feather="arrow-right" class="w-4 h-4 mr-1"></i>
+                            <span class="ml-3">Voir toutes les tâches</span>
+                        </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Activité récente -->
+            <div class="bg-white p-4 rounded-lg shadow mb-6">
+                <h3 class="text-lg font-semibold mb-4">Activité récente</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead>
+                            <tr class="text-left text-sm text-gray-500 border-b">
+                                <th class="pb-2">Parcelle</th>
+                                <th class="pb-2">Culture</th>
+                                <th class="pb-2">Rendement (kg)</th>
+                                <th class="pb-2">Tâches</th>
+                                <th class="pb-2">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for y in dashboard.yield_summary %}
+                            <tr class="text-sm border-b hover:bg-gray-50">
+                                <td class="py-3">{{ y.parcel_name }}</td>
+                                <td>{{ y.crop_name }}</td>
+                                <td>
+                                    {% if y.summary %}
+                                        {{ y.summary.total_yield }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% for t in dashboard.task_summary %}
+                                   {{ dashboard.task_summary.0.task_summary.completed_tasks }}
+                                /
+                                {{ dashboard.task_summary.0.task_summary.total_tasks }}
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    <button class="text-green-600 hover:text-green-800">
+                                        <i data-feather="eye" class="w-4 h-4"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+
+            <!-- Parcelles Section -->
+            <section id="parcelles" class="page-section hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold">Gestion des parcelles</h3>
+                    <button id="addParcelleBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg flex items-center hover:bg-green-700">
+                        <i data-feather="plus" class="w-4 h-4 mr-2"></i>
+                        Ajouter une parcelle
+                    </button>
+                </div>
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr class="text-left text-sm text-gray-500 bg-gray-50">
+                                    <th class="px-4 py-3">UUID</th>
+                                    <th class="px-4 py-3">Nom</th>
+                                    <th class="px-4 py-3">Superficie</th>
+                                    <th class="px-4 py-3">Culture</th>
+                                    <th class="px-4 py-3">Rendement estimé</th>
+                                    <th class="px-4 py-3">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for parcelle in parcelles %}
+                                <tr class="text-sm border-b hover:bg-gray-50">
+                                    <td class="px-4 py-3">{{ parcelle.id }}</td>
+                                    <td class="px-4 py-3">{{ parcelle.nom }}</td>
+                                    <td class="px-4 py-3">{{ parcelle.superficie }} ha</td>
+                                    <td class="px-4 py-3">{{ parcelle.culture }}</td>
+                                    <td class="px-4 py-3">{{ parcelle.rendement }} t</td>
+                                    <td class="px-4 py-3 flex space-x-2">
+                                        <button class="text-blue-600 hover:text-blue-800">
+                                            <i data-feather="edit" class="w-4 h-4"></i>
+                                        </button>
+                                        <!-- Exemple bouton pour accéder à la page des données complètes d'une parcelle -->
+                                        <a href="/parcels/{{ parcelle.id }}/view/"
+                                           class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 inline-flex items-center">
+                                            <i data-feather="eye" class="w-4 h-4 mr-2"></i>
+                                        </a>
+                                        <button class="text-red-600 hover:text-red-800">
+                                            <i data-feather="trash" class="w-4 h-4"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Statistiques Section -->
+            <section id="statistiques" class="page-section hidden">
+                <h3 class="text-lg font-semibold mb-4">Statistiques de rendement</h3>
+                <div class="bg-white p-4 rounded-lg shadow mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <label class="text-sm text-gray-500">Filtrer par :</label>
+                            <select class="ml-2 border rounded px-2 py-1 text-sm">
+                                <option>Toutes les parcelles</option>
+                                {% for nom in parcel_names %}
+                                <option>{{ nom }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-sm text-gray-500">Année :</label>
+                            <select class="ml-2 border rounded px-2 py-1 text-sm">
+                                {% for y in years %}
+                                <option>{{ y }}</option>
+                                {% empty %}
+                                <option>—</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <canvas id="statsChart" height="300"></canvas>
+                </div>
+            </section>
+
+            <!-- Prévisions Section -->
+            <section id="previsions" class="page-section hidden">
+                <h3 class="text-lg font-semibold mb-4">Prévisions météo</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <h4 class="font-medium mb-2">Températures</h4>
+                        <canvas id="tempChart" height="200"></canvas>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <h4 class="font-medium mb-2">Précipitations</h4>
+                        <canvas id="rainChart" height="200"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Paramètres Section -->
+            <section id="parametres" class="page-section hidden">
+                <h3 class="text-lg font-semibold mb-4">Paramètres du compte</h3>
+                <div class="bg-white p-4 rounded-lg shadow max-w-lg">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nom complet</label>
+                        <input type="text" value="{{ user.get_full_name|default:user.username }}" class="w-full border rounded px-3 py-2">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input type="email" value="{{ user.email }}" class="w-full border rounded px-3 py-2">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label>
+                        <input type="password" placeholder="••••••••" class="w-full border rounded px-3 py-2">
+                    </div>
+                    <button class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                        Enregistrer les modifications
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Add Parcelle Modal -->
+    <div id="parcelleModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold">Ajouter une parcelle</h3>
+                <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700">
+                    <i data-feather="x"></i>
+                </button>
+            </div>
+            <form>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nom de la parcelle</label>
+                    <input type="text" class="w-full border rounded px-3 py-2" placeholder="Parcelle D">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Superficie (ha)</label>
+                    <input type="number" class="w-full border rounded px-3 py-2" placeholder="4">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Culture</label>
+                    <select class="w-full border rounded px-3 py-2">
+                        {% for c in crops %}
+                        <option>{{ c }}</option>
+                        {% empty %}
+                        <option>Aucune culture</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Date de plantation</label>
+                    <input type="date" class="w-full border rounded px-3 py-2">
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="button" id="cancelModalBtn" class="px-4 py-2 border rounded-lg hover:bg-gray-50">
+                        Annuler
+                    </button>
+                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                        Enregistrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50{% if user.is_authenticated %} hidden{% endif %}">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold text-green-600 mb-2">Smart Saha</h2>
+                <p class="text-gray-600">Connectez-vous à votre compte</p>
+            </div>
+            <form>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                    <input type="text" class="w-full border rounded px-3 py-2" placeholder="jeanDeDieu">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label>
+                    <input type="password" class="w-full border rounded px-3 py-2" placeholder="••••••••">
+                </div>
+                <button type="submit" class="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 mb-4">
+                    Connexion
+                </button>
+                <div class="text-center text-sm">
+                    <a href="#" class="text-green-600 hover:text-green-800">Créer un compte</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Feather Icons
+        feather.replace();
+
+        // Navigation
+        document.querySelectorAll('nav a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = this.getAttribute('href').substring(1);
+
+                // Update page title
+                document.getElementById('pageTitle').textContent = this.querySelector('span').textContent;
+
+                // Hide all sections
+                document.querySelectorAll('.page-section').forEach(section => {
+                    section.classList.add('hidden');
+                });
+
+                // Show target section
+                document.getElementById(target).classList.remove('hidden');
+
+                // Close mobile menu if open
+                document.getElementById('sidebar').classList.remove('sidebar-open');
+            });
+        });
+
+        // Mobile Menu Toggle
+        document.getElementById('menuBtn').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('sidebar-open');
+        });
+
+        // Parcelle Modal
+        const parcelleModal = document.getElementById('parcelleModal');
+        document.getElementById('addParcelleBtn').addEventListener('click', function() {
+            parcelleModal.classList.remove('hidden');
+        });
+
+        document.getElementById('closeModalBtn').addEventListener('click', function() {
+            parcelleModal.classList.add('hidden');
+        });
+
+        document.getElementById('cancelModalBtn').addEventListener('click', function() {
+            parcelleModal.classList.add('hidden');
+        });
+
+        // Close login modal (for demo)
+        setTimeout(() => {
+           document.getElementById('loginModal').classList.add('hidden');
+        }, 2000);
+
+        // Charts
+        document.addEventListener('DOMContentLoaded', function() {
+            // Stats Chart (dynamic)
+            const statsCtx = document.getElementById('statsChart').getContext('2d');
+            const statsLabels = {{ stats_labels|safe }};
+            const statsValues = {{ stats_values|safe }};
+            new Chart(statsCtx, {
+                type: 'bar',
+                data: {
+                    labels: statsLabels,
+                    datasets: [{
+                        label: 'Rendement (tonnes)',
+                        data: statsValues,
+                        backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Temp Chart (dynamic)
+            const tempCtx = document.getElementById('tempChart').getContext('2d');
+            const tempLabels = {{ temp_labels|safe }};
+            const tempMax = {{ temp_max|safe }};
+            const tempMin = {{ temp_min|safe }};
+            new Chart(tempCtx, {
+                type: 'line',
+                data: {
+                    labels: tempLabels,
+                    datasets: [{
+                        label: 'Max (°C)',
+                        data: tempMax,
+                        borderColor: 'rgba(239, 68, 68, 1)',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.3
+                    }, {
+                        label: 'Min (°C)',
+                        data: tempMin,
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true
+                }
+            });
+
+            // Rain Chart (dynamic)
+            const rainCtx = document.getElementById('rainChart').getContext('2d');
+            const rainLabels = {{ rain_labels|safe }};
+            const rainValues = {{ rain_values|safe }};
+            new Chart(rainCtx, {
+                type: 'bar',
+                data: {
+                    labels: rainLabels,
+                    datasets: [{
+                        label: 'Précipitations (mm)',
+                        data: rainValues,
+                        backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mon Champ - Tableau de Bord</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .card-hover {
+      transition: all 0.3s ease;
+    }
+    .card-hover:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    .status-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 8px;
+    }
+    .status-done { background-color: #10b981; }
+    .status-pending { background-color: #f59e0b; }
+    .status-planned { background-color: #3b82f6; }
+  </style>
+</head>
+<body class="bg-gray-50 font-sans">
+
+  <!-- Header -->
+  <div class="gradient-bg text-white py-6 px-6 mb-8">
+    <div class="max-w-6xl mx-auto">
+      <h1 class="text-3xl font-bold mb-2">
+        <i class="fas fa-seedling mr-3"></i>
+        <span id="parcelName">Mon Champ</span>
+      </h1>
+      <p class="text-blue-100">Tableau de bord de votre parcelle agricole</p>
+    </div>
+  </div>
+
+  <div class="max-w-6xl mx-auto px-6 space-y-8">
+
+    <!-- Résumé rapide -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+        <div class="flex items-center">
+          <div class="bg-green-100 p-3 rounded-full">
+            <i class="fas fa-map-marked-alt text-green-600 text-xl"></i>
+          </div>
+          <div class="ml-4">
+            <p class="text-gray-500 text-sm">Superficie</p>
+            <p class="text-2xl font-bold text-gray-800" id="totalArea">-</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+        <div class="flex items-center">
+          <div class="bg-blue-100 p-3 rounded-full">
+            <i class="fas fa-thermometer-half text-blue-600 text-xl"></i>
+          </div>
+          <div class="ml-4">
+            <p class="text-gray-500 text-sm">Température</p>
+            <p class="text-2xl font-bold text-gray-800" id="currentTemp">-</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+        <div class="flex items-center">
+          <div class="bg-purple-100 p-3 rounded-full">
+            <i class="fas fa-chart-line text-purple-600 text-xl"></i>
+          </div>
+          <div class="ml-4">
+            <p class="text-gray-500 text-sm">Rendement Moyen</p>
+            <p class="text-2xl font-bold text-gray-800" id="avgYield">-</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+        <div class="flex items-center">
+          <div class="bg-yellow-100 p-3 rounded-full">
+            <i class="fas fa-tasks text-yellow-600 text-xl"></i>
+          </div>
+          <div class="ml-4">
+            <p class="text-gray-500 text-sm">Tâches en cours</p>
+            <p class="text-2xl font-bold text-gray-800" id="pendingTasks">-</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Informations de la parcelle -->
+    <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+      <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+        <i class="fas fa-info-circle text-blue-600 mr-3"></i>
+        Informations de la Parcelle
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <h3 class="font-semibold text-gray-700 mb-2">Localisation</h3>
+          <div class="bg-gray-50 p-4 rounded-lg">
+            <p class="text-sm text-gray-600 mb-2">Points de délimitation :</p>
+            <ul id="parcelPoints" class="space-y-1 text-sm"></ul>
+          </div>
+        </div>
+        <div>
+          <h3 class="font-semibold text-gray-700 mb-2">Cultures Actuelles</h3>
+          <div id="currentCrops" class="space-y-3"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Données du sol -->
+    <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+      <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+        <i class="fas fa-mountain text-amber-600 mr-3"></i>
+        Qualité du Sol
+      </h2>
+      <div class="mb-4 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-400">
+        <p class="text-blue-800 text-sm">
+          <i class="fas fa-info-circle mr-2"></i>
+          Ces données vous aident à comprendre la composition de votre sol pour optimiser vos cultures.
+        </p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="soilCards"></div>
+    </div>
+
+    <!-- Données météo -->
+    <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+      <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+        <i class="fas fa-cloud-sun text-sky-600 mr-3"></i>
+        Conditions Météorologiques
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <h3 class="font-semibold text-gray-700 mb-3">Température (°C)</h3>
+          <canvas id="temperatureChart" width="400" height="200"></canvas>
+        </div>
+        <div>
+          <h3 class="font-semibold text-gray-700 mb-3">Précipitations (mm/jour)</h3>
+          <canvas id="precipitationChart" width="400" height="200"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Évolution des rendements -->
+    <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+      <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+        <i class="fas fa-chart-area text-green-600 mr-3"></i>
+        Évolution des Rendements
+      </h2>
+      <div class="mb-4 p-4 bg-green-50 rounded-lg border-l-4 border-green-400">
+        <p class="text-green-800 text-sm">
+          <i class="fas fa-lightbulb mr-2"></i>
+          Suivez l'évolution de vos récoltes pour identifier les meilleures pratiques.
+        </p>
+      </div>
+      <canvas id="yieldChart" width="400" height="200"></canvas>
+    </div>
+
+    <!-- Tâches à effectuer -->
+    <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+      <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+        <i class="fas fa-clipboard-list text-indigo-600 mr-3"></i>
+        Tâches à Effectuer
+      </h2>
+      <div id="tasksList" class="space-y-3"></div>
+    </div>
+
+    <!-- Historique détaillé des rendements -->
+    <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+      <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+        <i class="fas fa-history text-gray-600 mr-3"></i>
+        Historique des Récoltes
+      </h2>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="px-4 py-3 text-left font-semibold">Date</th>
+              <th class="px-4 py-3 text-left font-semibold">Rendement (kg)</th>
+              <th class="px-4 py-3 text-left font-semibold">Observations</th>
+              <th class="px-4 py-3 text-left font-semibold">Tendance</th>
+            </tr>
+          </thead>
+          <tbody id="yieldTableBody" class="divide-y divide-gray-200"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="mt-16 py-8 bg-gray-800 text-gray-300 text-center">
+    <p>&copy; 2025 - Tableau de bord agricole</p>
+  </footer>
+
+  <script>
+    // Données d'exemple (remplacez par vos vraies données)
+    const sampleData = {
+      "parcel": {
+        "id": "37b485ea-9368-47fe-9f0a-80857eac12a6",
+        "name": "Champ test",
+        "points": [
+          { "lat": -18.879, "lng": 47.507 },
+          { "lat": -18.88, "lng": 47.508 },
+          { "lat": -18.881, "lng": 47.507 }
+        ]
+      },
+      "soil_data": {
+        "properties": {
+          "layers": [
+            { "name": "clay", "depths": [{ "label": "0-5cm", "values": { "mean": 25 } }], "unit_measure": { "target_units": "%" } },
+            { "name": "sand", "depths": [{ "label": "0-5cm", "values": { "mean": 45 } }], "unit_measure": { "target_units": "%" } },
+            { "name": "silt", "depths": [{ "label": "0-5cm", "values": { "mean": 30 } }], "unit_measure": { "target_units": "%" } },
+            { "name": "nitrogen", "depths": [{ "label": "0-5cm", "values": { "mean": 2.1 } }], "unit_measure": { "target_units": "g/kg" } },
+            { "name": "phh2o", "depths": [{ "label": "0-5cm", "values": { "mean": 6.8 } }], "unit_measure": { "target_units": "-" } },
+            { "name": "soc", "depths": [{ "label": "0-5cm", "values": { "mean": 15 } }], "unit_measure": { "target_units": "g/kg" } }
+          ]
+        }
+      },
+      "climate_data": {
+        "properties": {
+          "parameter": {
+            "T2M": { "20250101": 20.41, "20250102": 20.51, "20250103": 20.0, "20250104": 19.63, "20250105": 19.41, "20250106": 19.88, "20250107": 19.73 },
+            "PRECTOTCORR": { "20250101": 1.35, "20250102": 0.18, "20250103": 0.1, "20250104": 0.26, "20250105": 0.21, "20250106": 0.7, "20250107": 4.71 }
+          }
+        }
+      },
+      "parcel_crops": [{
+        "crop": { "name": "Champ de riz", "variety": "Riz IR64" },
+        "area": 3.5,
+        "status": "Planned",
+        "planting_date": "2025-01-15",
+        "harvest_date": "2025-06-15",
+        "tasks": [
+          { "name": "Engrais champ A", "status": "Pending", "due_date": "2025-09-11", "priority": "Medium" },
+          { "name": "Irrigation champ A", "status": "Done", "due_date": "2025-09-10", "priority": "High" }
+        ]
+      }],
+      "yield_records": [
+        { "date": "2025-09-08", "yield": 1200.5, "notes": "Première récolte de maïs" },
+        { "date": "2025-09-15", "yield": 1250.0, "notes": "Bonne maturation du maïs" },
+        { "date": "2025-09-22", "yield": 1180.7, "notes": "Légère sécheresse observée" },
+        { "date": "2025-09-29", "yield": 1300.2, "notes": "Rendement optimal après fertilisation" },
+        { "date": "2025-10-06", "yield": 1275.6, "notes": "Bonne pluviométrie" },
+        { "date": "2025-10-13", "yield": 1220.4, "notes": "Quelques plants affectés par maladie" },
+        { "date": "2025-10-20", "yield": 1285.9, "notes": "Climat favorable" },
+        { "date": "2025-10-27", "yield": 1310.3, "notes": "Rendement stable" },
+        { "date": "2025-11-03", "yield": 1295.7, "notes": "Pas de problème majeur" },
+        { "date": "2025-11-10", "yield": 1330.0, "notes": "Récolte finale de la saison" }
+      ]
+    };
+
+    // Fonction pour obtenir une explication conviviale des paramètres du sol
+    function getSoilExplanation(paramName) {
+      const explanations = {
+        'clay': { name: 'Argile', desc: 'Retient l\'eau et les nutriments', icon: 'fas fa-tint', color: 'bg-blue-100 text-blue-800' },
+        'sand': { name: 'Sable', desc: 'Facilite le drainage', icon: 'fas fa-mountain', color: 'bg-yellow-100 text-yellow-800' },
+        'silt': { name: 'Limon', desc: 'Équilibre drainage et rétention', icon: 'fas fa-balance-scale', color: 'bg-green-100 text-green-800' },
+        'nitrogen': { name: 'Azote', desc: 'Nutriment essentiel pour la croissance', icon: 'fas fa-leaf', color: 'bg-emerald-100 text-emerald-800' },
+        'phh2o': { name: 'pH du sol', desc: 'Mesure l\'acidité (optimal: 6-7)', icon: 'fas fa-flask', color: 'bg-purple-100 text-purple-800' },
+        'soc': { name: 'Matière organique', desc: 'Améliore la fertilité du sol', icon: 'fas fa-seedling', color: 'bg-amber-100 text-amber-800' }
+      };
+      return explanations[paramName] || { name: paramName, desc: '', icon: 'fas fa-question', color: 'bg-gray-100 text-gray-800' };
+    }
+
+    // Fonction pour obtenir la tendance des rendements
+    function getYieldTrend(currentYield, previousYield) {
+      if (!previousYield) return { icon: 'fas fa-minus', color: 'text-gray-500', text: 'N/A' };
+      const diff = currentYield - previousYield;
+      if (diff > 0) return { icon: 'fas fa-arrow-up', color: 'text-green-600', text: `+${diff.toFixed(1)}` };
+      if (diff < 0) return { icon: 'fas fa-arrow-down', color: 'text-red-600', text: `${diff.toFixed(1)}` };
+      return { icon: 'fas fa-equals', color: 'text-gray-600', text: 'Stable' };
+    }
+
+    function loadData(data) {
+      // Vérification de la structure des données
+      if (!data || !data.parcel) {
+        console.error('Structure de données invalide:', data);
+        throw new Error('Données incomplètes');
+      }
+
+      // Nom de la parcelle
+      document.getElementById('parcelName').textContent = data.parcel.name || 'Parcelle sans nom';
+
+      // Points de la parcelle
+      const pointsList = document.getElementById('parcelPoints');
+      pointsList.innerHTML = '';
+      if (data.parcel.points && data.parcel.points.length > 0) {
+        data.parcel.points.forEach((point, index) => {
+          const li = document.createElement('li');
+          li.innerHTML = `<i class="fas fa-map-pin text-red-500 mr-1"></i> Point ${index + 1}: ${point.lat.toFixed(4)}, ${point.lng.toFixed(4)}`;
+          li.className = 'text-gray-600';
+          pointsList.appendChild(li);
+        });
+      } else {
+        pointsList.innerHTML = '<li class="text-gray-500">Aucun point défini</li>';
+      }
+
+      // Cultures actuelles
+      const cropsDiv = document.getElementById('currentCrops');
+      cropsDiv.innerHTML = '';
+      if (data.parcel_crops && data.parcel_crops.length > 0) {
+        data.parcel_crops.forEach(crop => {
+          const cropDiv = document.createElement('div');
+          cropDiv.className = 'bg-gray-50 p-3 rounded-lg';
+          const statusClass = crop.status ? crop.status.toLowerCase() : 'unknown';
+          cropDiv.innerHTML = `
+            <div class="flex items-center mb-2">
+              <span class="status-indicator status-${statusClass}"></span>
+              <strong>${crop.crop?.name || 'Culture inconnue'}</strong>
+            </div>
+            ${crop.crop?.variety ? `<p class="text-sm text-gray-600">Variété: ${crop.crop.variety}</p>` : ''}
+            ${crop.area ? `<p class="text-sm text-gray-600">Surface: ${crop.area} ha</p>` : ''}
+            ${crop.planting_date ? `<p class="text-sm text-gray-600">Plantation: ${new Date(crop.planting_date).toLocaleDateString('fr-FR')}</p>` : ''}
+          `;
+          cropsDiv.appendChild(cropDiv);
+        });
+      } else {
+        cropsDiv.innerHTML = '<div class="text-gray-500 italic">Aucune culture définie</div>';
+      }
+
+      // Résumé rapide
+      const totalArea = data.parcel_crops ? data.parcel_crops.reduce((sum, crop) => sum + (crop.area || 0), 0) : 0;
+      document.getElementById('totalArea').textContent = totalArea + ' ha';
+
+      // Température moyenne
+      let avgTemp = 'N/A';
+      if (data.climate_data?.properties?.parameter?.T2M) {
+        const tempValues = Object.values(data.climate_data.properties.parameter.T2M);
+        if (tempValues.length > 0) {
+          avgTemp = (tempValues.reduce((sum, val) => sum + val, 0) / tempValues.length).toFixed(1) + '°C';
+        }
+      }
+      document.getElementById('currentTemp').textContent = avgTemp;
+
+      // Rendement moyen
+      let avgYieldText = 'N/A';
+      if (data.yield_records && data.yield_records.length > 0) {
+        const yields = data.yield_records.map(record => record.yield || 0);
+        const avgYieldValue = yields.reduce((sum, val) => sum + val, 0) / yields.length;
+        avgYieldText = (avgYieldValue / 1000).toFixed(1) + ' t';
+      }
+      document.getElementById('avgYield').textContent = avgYieldText;
+
+      // Tâches en attente
+      let pendingTasksCount = 0;
+      if (data.parcel_crops) {
+        pendingTasksCount = data.parcel_crops.reduce((count, crop) =>
+          count + (crop.tasks ? crop.tasks.filter(task => task.status === 'Pending').length : 0), 0
+        );
+      }
+      document.getElementById('pendingTasks').textContent = pendingTasksCount;
+
+      // Données du sol
+      const soilCards = document.getElementById('soilCards');
+      soilCards.innerHTML = '';
+      if (data.soil_data?.properties?.layers) {
+        data.soil_data.properties.layers.forEach(layer => {
+          const explanation = getSoilExplanation(layer.name);
+          const value = layer.depths?.[0]?.values?.mean;
+
+          const card = document.createElement('div');
+          card.className = 'border rounded-lg p-4';
+          card.innerHTML = `
+            <div class="flex items-center mb-3">
+              <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mr-3">
+                <i class="${explanation.icon} text-gray-600"></i>
+              </div>
+              <div>
+                <h4 class="font-semibold text-gray-800">${explanation.name}</h4>
+                <p class="text-xs text-gray-500">${explanation.desc}</p>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-2xl font-bold text-gray-800">${value !== null && value !== undefined ? value : 'N/A'}</span>
+              <span class="${explanation.color} px-2 py-1 rounded-full text-xs font-medium">
+                ${layer.unit_measure?.target_units || '-'}
+              </span>
+            </div>
+          `;
+          soilCards.appendChild(card);
+        });
+      } else {
+        soilCards.innerHTML = '<div class="col-span-3 text-center text-gray-500 italic">Données de sol non disponibles</div>';
+      }
+
+      // Graphiques météo
+      if (data.climate_data?.properties?.parameter) {
+        if (data.climate_data.properties.parameter.T2M) {
+          createTemperatureChart(data.climate_data.properties.parameter.T2M);
+        }
+        if (data.climate_data.properties.parameter.PRECTOTCORR) {
+          createPrecipitationChart(data.climate_data.properties.parameter.PRECTOTCORR);
+        }
+      }
+
+      // Graphique des rendements
+      if (data.yield_records && data.yield_records.length > 0) {
+        createYieldChart(data.yield_records);
+      }
+
+      // Tâches
+      const tasksList = document.getElementById('tasksList');
+      tasksList.innerHTML = '';
+      let hasAnyTasks = false;
+
+      if (data.parcel_crops) {
+        data.parcel_crops.forEach(crop => {
+          if (crop.tasks && crop.tasks.length > 0) {
+            hasAnyTasks = true;
+            crop.tasks.forEach(task => {
+              const taskDiv = document.createElement('div');
+              taskDiv.className = `border-l-4 ${task.status === 'Done' ? 'border-green-400 bg-green-50' : 'border-yellow-400 bg-yellow-50'} p-4 rounded-r-lg`;
+              taskDiv.innerHTML = `
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h4 class="font-semibold">${task.name || 'Tâche sans nom'}</h4>
+                    ${task.due_date ? `<p class="text-sm text-gray-600">Échéance: ${new Date(task.due_date).toLocaleDateString('fr-FR')}</p>` : ''}
+                    ${task.priority ? `<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                      task.priority === 'High' ? 'bg-red-100 text-red-800' :
+                      task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-green-100 text-green-800'
+                    }">
+                      ${task.priority === 'High' ? 'Priorité élevée' : task.priority === 'Medium' ? 'Priorité moyenne' : 'Priorité faible'}
+                    </span>` : ''}
+                  </div>
+                  <div class="text-right">
+                    <span class="status-indicator status-${task.status?.toLowerCase() || 'unknown'}"></span>
+                    <span class="text-sm font-medium">${task.status === 'Done' ? 'Terminé' : task.status === 'Pending' ? 'En attente' : task.status || 'Statut inconnu'}</span>
+                  </div>
+                </div>
+              `;
+              tasksList.appendChild(taskDiv);
+            });
+          }
+        });
+      }
+
+      if (!hasAnyTasks) {
+        tasksList.innerHTML = '<div class="text-center text-gray-500 italic py-8">Aucune tâche définie</div>';
+      }
+
+      // Tableau des rendements
+      const yieldTableBody = document.getElementById('yieldTableBody');
+      yieldTableBody.innerHTML = '';
+
+      if (data.yield_records && data.yield_records.length > 0) {
+        // Trier les rendements par date
+        const sortedYields = [...data.yield_records].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        sortedYields.forEach((record, index) => {
+          const previousRecord = index > 0 ? sortedYields[index - 1] : null;
+          const trend = getYieldTrend(record.yield, previousRecord?.yield);
+
+          const row = document.createElement('tr');
+          row.className = 'hover:bg-gray-50';
+          row.innerHTML = `
+            <td class="px-4 py-3">${new Date(record.date).toLocaleDateString('fr-FR')}</td>
+            <td class="px-4 py-3 font-semibold">${(record.yield || 0).toFixed(1)}</td>
+            <td class="px-4 py-3 text-gray-600">${record.notes || '-'}</td>
+            <td class="px-4 py-3">
+              <span class="${trend.color}">
+                <i class="${trend.icon} mr-1"></i>
+                ${trend.text}
+              </span>
+            </td>
+          `;
+          yieldTableBody.appendChild(row);
+        });
+      } else {
+        yieldTableBody.innerHTML = '<tr><td colspan="4" class="px-4 py-8 text-center text-gray-500 italic">Aucun rendement enregistré</td></tr>';
+      }
+    }
+
+    function createTemperatureChart(tempData) {
+      const ctx = document.getElementById('temperatureChart').getContext('2d');
+      const dates = Object.keys(tempData).map(date => new Date(date.slice(0,4) + '-' + date.slice(4,6) + '-' + date.slice(6,8)).toLocaleDateString('fr-FR'));
+      const temps = Object.values(tempData);
+
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: dates,
+          datasets: [{
+            label: 'Température (°C)',
+            data: temps,
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            tension: 0.4,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: false }
+          }
+        }
+      });
+    }
+
+    function createPrecipitationChart(precipData) {
+      const ctx = document.getElementById('precipitationChart').getContext('2d');
+      const dates = Object.keys(precipData).map(date => new Date(date.slice(0,4) + '-' + date.slice(4,6) + '-' + date.slice(6,8)).toLocaleDateString('fr-FR'));
+      const precips = Object.values(precipData);
+
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: dates,
+          datasets: [{
+            label: 'Précipitations (mm)',
+            data: precips,
+            backgroundColor: '#06b6d4',
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      });
+    }
+
+    function createYieldChart(yieldData) {
+      const ctx = document.getElementById('yieldChart').getContext('2d');
+      const sortedData = yieldData.sort((a, b) => new Date(a.date) - new Date(b.date));
+      const dates = sortedData.map(record => new Date(record.date).toLocaleDateString('fr-FR'));
+      const yields = sortedData.map(record => record.yield);
+
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: dates,
+          datasets: [{
+            label: 'Rendement (kg)',
+            data: yields,
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            tension: 0.4,
+            fill: true,
+            pointBackgroundColor: '#10b981',
+            pointRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                afterLabel: function(context) {
+                  const record = sortedData[context.dataIndex];
+                  return record.notes ? `Note: ${record.notes}` : '';
+                }
+              }
+            }
+          },
+          scales: {
+            y: { beginAtZero: false }
+          }
+        }
+      });
+    }
+
+    // Chargement des données depuis l'API
+    const parcelId = "{{ parcel_uuid }}";
+    const url = `/api/parcels-full/${parcelId}/full_data/`;
+
+    const myHeaders = new Headers();
+    myHeaders.append("Accept", "application/json");
+    myHeaders.append("Content-Type", "application/json");
+    myHeaders.append("Authorization", "Token 347be5de5501e526e9a14a279e18462463ee066c");
+
+    // Affichage d'un loader pendant le chargement
+    document.body.classList.add('opacity-75');
+
+    fetch(url, { method: "GET", headers: myHeaders })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`Erreur HTTP: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then(data => {
+        console.log('Données reçues:', data); // Pour déboguer
+        loadData(data);
+        document.body.classList.remove('opacity-75');
+      })
+      .catch(err => {
+        console.error('Erreur lors du chargement:', err);
+        document.body.innerHTML = `
+          <div class="min-h-screen flex items-center justify-center bg-gray-50">
+            <div class="text-center p-8 bg-white rounded-xl shadow-lg max-w-md">
+              <i class="fas fa-exclamation-triangle text-red-500 text-4xl mb-4"></i>
+              <h2 class="text-2xl font-bold text-gray-800 mb-2">Erreur de chargement</h2>
+              <p class="text-gray-600 mb-4">Impossible de charger les données de la parcelle.</p>
+              <button onclick="location.reload()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                <i class="fas fa-redo mr-2"></i>Réessayer
+              </button>
+            </div>
+          </div>
+        `;
+      });
+
+    // Fallback avec données d'exemple si nécessaire (pour le développement)
+    // loadData(sampleData);
+  </script>
+</body>
+</html>
