@@ -301,7 +301,7 @@ Accept: application/json
 
 
 ### Requête SoilGrids - Données du sol
-GET https://rest.isric.org/soilgrids/v2.0/properties/query?lon=47.5&lat=-18.9&property=phh2o&property=soc&property=nitrogen&property=sand&property=clay&property=silt&depth=0-5cm&value=mean
+GET https://rest.isric.org/soilgrids/v2.0/properties/query?lon=43.67&lat=-23.05&property=phh2o&property=soc&property=nitrogen&property=sand&property=clay&property=silt&depth=0-5cm&value=mean
 Accept: application/json
 
 ### Fire detector
@@ -318,3 +318,46 @@ GET https://firms.modaps.eosdis.nasa.gov/data/csv/MODIS_C6_1_Global_24h.csv
 Accept: text/csv
 
 
+### Obtenir le pH du sol (0-20cm) à Antananarivo
+GET https://api.isda-africa.com/v2/soilproperty?lat=-18.9&lon=47.5&prop=ph&depth=0-20cm
+Accept: application/json
+
+### Obtenir la teneur en carbone organique (SOC)
+GET https://api.isda-africa.com/v2/soilproperty?lat=-18.9&lon=47.5&prop=soc&depth=0-20cm
+Accept: application/json
+
+### Obtenir la teneur en sable (0-20cm)
+GET https://api.isda-africa.com/v2/soilproperty?lat=-18.9&lon=47.5&prop=sand&depth=0-20cm
+Accept: application/json
+
+### Obtenir l’argile (0-20cm)
+GET https://api.isda-africa.com/v2/soilproperty?lat=-18.9&lon=47.5&prop=clay&depth=0-20cm
+Accept: application/json
+
+### Obtenir le limon (0-20cm)
+GET https://api.isda-africa.com/v2/soilproperty?lat=-18.9&lon=47.5&prop=silt&depth=0-20cm
+Accept: application/json
+
+### Obtenir l’azote total (0-20cm)
+GET https://api.isda-africa.com/v2/soilproperty?lat=-18.9&lon=47.5&prop=nitrogen&depth=0-20cm
+Accept: application/json
+
+
+###login
+POST https://api.isda-africa.com/isdasoil/v2/login
+Content-Type: application/x-www-form-urlencoded
+Accept: application/json
+
+username=hugueszeus@gmail.com&password=Hugues2011
+### 1. Login pour obtenir le token
+POST https://api.isda-africa.com/isdasoil/v2/login
+Content-Type: application/x-www-form-urlencoded
+Accept: application/json
+
+username=hugueszeus@gmail.com&password=Hugues2011!
+
+
+### 2. Exemple : récupérer le pH (0-20cm) à un point au Kenya
+GET https://api.isda-africa.com/isdasoil/v2/soilproperty?lat=-0.7196&lon=35.2400&prop=ph&depth=0-20cm
+Accept: application/json
+Authorization: Bearer {{access_token}}

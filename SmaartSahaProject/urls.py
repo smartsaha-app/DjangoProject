@@ -71,6 +71,7 @@ urlpatterns = [
 
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+
     path('forecast/<int:parcel_crop_id>/', YieldForecastView.as_view(), name='yield_forecast'),
 
     path("analytics/yields/", YieldAnalyticsView.as_view(), name="yield-analytics"),
