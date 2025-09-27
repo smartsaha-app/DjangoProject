@@ -184,8 +184,8 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://precision-agriculture-two.vercel.app/",
-    "https://app.smart-saha.com/",
+    "https://precision-agriculture-two.vercel.app",
+    "https://app.smart-saha.com",
 ]
 
 # OU pour tout autoriser (pas recommandé en prod)
