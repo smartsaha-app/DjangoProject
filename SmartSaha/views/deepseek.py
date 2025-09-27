@@ -1,5 +1,4 @@
 import json
-
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -7,10 +6,12 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+import httpx  # pour gérer les exceptions HTTP de DeepSeek
 
 from SmartSaha.services import DeepSeekClient
 
 deepseek = DeepSeekClient()
+
 
 class AgronomyAssistantAPIView(APIView):
     def post(self, request):
@@ -23,12 +24,19 @@ class AgronomyAssistantAPIView(APIView):
         if not question:
             return Response({"error": "No question provided."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # On passe tout à DeepSeekClient
-        answer = deepseek.ask(
-            question=question,
-            parcel_uuid=parcel_id,
-            user_modules=user_modules
-        )
+        try:
+            answer = deepseek.ask(
+                question=question,
+                parcel_uuid=parcel_id,
+                user_modules=user_modules
+            )
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 429:
+                answer = "Trop de requêtes vers le service IA. Réessaie plus tard."
+            else:
+                answer = f"Erreur API: {str(e)}"
+        except Exception as e:
+            answer = f"Erreur inattendue: {str(e)}"
 
         return Response({
             "answer": answer,
@@ -39,6 +47,7 @@ class AgronomyAssistantAPIView(APIView):
                 "modules": user_modules
             }
         }, status=status.HTTP_200_OK)
+
 
 @login_required(login_url="login")
 def assistant_agronome_page(request):
@@ -69,12 +78,19 @@ def assistant_agronome_api(request):
         if not question or not question_type:
             return JsonResponse({"error": "Champs obligatoires manquants"}, status=400)
 
-            # On passe tout à DeepSeekClient
-        response = deepseek.ask(
-            question=question,
-            parcel_uuid=parcel_id,
-            user_modules=user_modules
-        )
+        try:
+            response = deepseek.ask(
+                question=question,
+                parcel_uuid=parcel_id,
+                user_modules=user_modules
+            )
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 429:
+                response = {"answer": "Trop de requêtes vers le service IA. Réessaie plus tard. Tester le "}
+            else:
+                response = {"answer": f"Erreur API: {str(e)}"}
+        except Exception as e:
+            response = {"answer": f"Erreur inattendue: {str(e)}"}
 
         return JsonResponse(response, safe=False)
 

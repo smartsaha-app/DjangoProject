@@ -16,9 +16,11 @@ Reponds toujours de maniere précise, pratique, court et adaptee aux conditions 
 """
 class DeepSeekClient:
     def __init__(self, model="deepseek/deepseek-r1:free"):
-        self.api_key = getattr(settings, "OPENROUTER_API_KEY", None) or os.getenv("OPENROUTER_API_KEY")
+        # utilise directement la valeur depuis settings
+        self.api_key = settings.OPENROUTER_API_KEY
         if not self.api_key:
             raise ValueError("OPENROUTER_API_KEY manquant dans settings ou .env")
+
 
         self.base_url = "https://openrouter.ai/api/v1"
         self.model = model
