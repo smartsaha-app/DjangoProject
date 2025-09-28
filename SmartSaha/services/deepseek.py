@@ -1,8 +1,6 @@
-
 import httpx
 import os
 from django.conf import settings
-
 
 from SmartSaha.services.context_builder import ContextBuilder
 
@@ -28,6 +26,7 @@ class DeepSeekClient:
         print(context_data)
         full_prompt = f"{BASE_PROMPT}\n\nDonnées locales:\n{context_data}\n\nQuestion: {question}\nRéponse:"
         print(full_prompt)
+        print("OPENROUTER_API_KEY =", self.api_key)
 
         headers = {
             "Authorization": f"Bearer {self.api_key}",
@@ -39,9 +38,16 @@ class DeepSeekClient:
         }
 
         with httpx.Client(timeout=60.0) as client:
-            response = client.post(f"{self.base_url}/chat/completions", json=payload, headers=headers)
-            response.raise_for_status()  # déclenche une exception si 4xx/5xx
-            data = response.json()
+            try:
+                response = client.post(f"{self.base_url}/chat/completions", json=payload, headers=headers)
+                print("Status:", response.status_code)
+                print("Response:", response.text[:500])  # debug rapide
+                response.raise_for_status()
+                data = response.json()
+            except httpx.HTTPStatusError as e:
+                return f"Erreur API OpenRouter ({e.response.status_code}): {e.response.text}"
+            except Exception as e:
+                return f"Erreur interne: {str(e)}"
 
         # Retourne le contenu de la réponse
         try:
