@@ -16,6 +16,7 @@ from SmartSaha.views import (
 )
 from SmartSaha.views.users import ForgotPasswordView, ResetPasswordView
 from django.contrib.auth import views as auth_views
+from SmartSaha.views.users import GoogleLoginView
 
 # from django.urls import path
 # from .tests import test_env  # ou views si tu l'as mis dedans
@@ -63,6 +64,7 @@ urlpatterns = [
     path('', redirect_to_swagger, name='home'),  # racine redirige vers Swagger
     path('api/signup/', SignupView.as_view(), name='signup'),
     path('api/login/', LoginView.as_view(), name='login'),
+    path("api/google-login/", GoogleLoginView.as_view(), name="google-login"),
     path("api/forgot-password/", ForgotPasswordView.as_view(), name="forgot-password"),
     path("api/reset-password/<uidb64>/<token>/", ResetPasswordView.as_view(), name="reset-password"),
     path("api/soil-data/", SoilDataView.as_view(), name="soil-data"),

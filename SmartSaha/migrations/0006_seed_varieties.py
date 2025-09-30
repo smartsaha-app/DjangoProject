@@ -3,16 +3,26 @@ from django.db import migrations
 def seed_varieties(apps, schema_editor):
     Variety = apps.get_model("SmartSaha", "Variety")
     varieties = [
-        {"name": "Riz IR64", "description": "Variété de riz très cultivée en Asie, cycle court."},
-        {"name": "Maïs Jaune Hybride", "description": "Maïs résistant avec bon rendement."},
-        {"name": "Manioc Traditionnel", "description": "Culture vivrière de base, tubercules comestibles."},
-        {"name": "Tomate Roma", "description": "Tomate résistante, utilisée pour sauces et conserves."},
-        {"name": "Haricot Vert", "description": "Légumineuse riche en protéines, cycle rapide."},
-        {"name": "Soja Tropical", "description": "Légumineuse oléagineuse, fixation d’azote dans le sol."},
-        {"name": "Pomme de Terre Spunta", "description": "Variété précoce, tubercules de taille moyenne."},
-        {"name": "Arachide Locale", "description": "Plante oléagineuse cultivée pour ses graines."},
-        {"name": "Canne à Sucre", "description": "Culture industrielle pour production de sucre."},
-        {"name": "Café Arabica", "description": "Culture de rente, grains de café aromatiques."},
+        {"name": "IR64 Rice", "description": "Highly cultivated rice variety in Asia, short cycle."},
+        {"name": "Yellow Hybrid Corn", "description": "Resistant corn with good yield."},
+        {"name": "Traditional Cassava", "description": "Basic food crop, edible tubers."},
+        {"name": "Roma Tomato", "description": "Resistant tomato, used for sauces and canning."},
+        {"name": "Green Bean", "description": "Protein-rich legume, fast-growing."},
+        {"name": "Tropical Soybean", "description": "Oilseed legume, fixes nitrogen in the soil."},
+        {"name": "Spunta Potato", "description": "Early variety, medium-sized tubers."},
+        {"name": "Local Peanut", "description": "Oilseed plant cultivated for its seeds."},
+        {"name": "Sugarcane", "description": "Industrial crop for sugar production."},
+        {"name": "Arabica Coffee", "description": "Cash crop, aromatic coffee beans."},
+        {"name": "Wheat Durum", "description": "Hard wheat variety for pasta and bread."},
+        {"name": "Barley", "description": "Cereal crop used for food, fodder, and brewing."},
+        {"name": "Sunflower", "description": "Oilseed crop, high-quality edible oil."},
+        {"name": "Cabbage", "description": "Leafy vegetable, short cycle, widely consumed."},
+        {"name": "Onion", "description": "Bulb vegetable, staple in cooking."},
+        {"name": "Garlic", "description": "Bulb vegetable, used for flavoring."},
+        {"name": "Chili Pepper", "description": "Spicy vegetable, widely used in sauces."},
+        {"name": "Cocoa", "description": "Cash crop, used for chocolate production."},
+        {"name": "Vanilla", "description": "Aromatic crop, high-value spice."},
+        {"name": "Coconut", "description": "Tropical crop, multiple uses: oil, water, copra."}
     ]
 
     for variety in varieties:
