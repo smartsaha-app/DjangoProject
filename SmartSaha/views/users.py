@@ -11,6 +11,10 @@ from rest_framework.authtoken.models import Token
 from SmartSaha.serializers import UserSerializer, UserSignupSerializer, UserLoginSerializer
 from SmartSaha.models import User
 
+from google.oauth2 import id_token
+from google.auth.transport import requests
+import secrets
+
 def send_test_email():
     send_mail(
         subject="Test Django avec Zoho",
@@ -113,3 +117,51 @@ class ResetPasswordView(APIView):
         user.save()
 
         return Response({"message": "Password reset successful"}, status=status.HTTP_200_OK)
+
+class GoogleLoginView(APIView):
+    permission_classes = []  # public
+
+    GOOGLE_CLIENT_ID = "972113542805-n0fujnh22t4jkejhvda051oml965limf.apps.googleusercontent.com"  # Remplace par ton client ID Google
+
+    def post(self, request, *args, **kwargs):
+        token_from_front = request.data.get("token")
+        if not token_from_front:
+            return Response({"error": "Token missing"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Vérification du token Google
+            idinfo = id_token.verify_oauth2_token(token_from_front, requests.Request(), self.GOOGLE_CLIENT_ID)
+            email = idinfo.get("email")
+            first_name = idinfo.get("given_name", "")
+            last_name = idinfo.get("family_name", "")
+
+            if not email:
+                return Response({"error": "Email not provided by Google"}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Crée ou récupère l'utilisateur
+            user, created = User.objects.get_or_create(
+                email=email,
+                defaults={
+                    "username": first_name,
+                    "first_name": first_name,
+                    "last_name": last_name,
+                    "password": secrets.token_urlsafe(16)  # mot de passe aléatoire
+                }
+            )
+
+            # Générer le token Django REST Framework
+            token_obj, _ = Token.objects.get_or_create(user=user)
+
+            return Response({
+                "token": token_obj.key,
+                "user": {
+                    "uuid": str(user.uuid),
+                    "username": user.username,
+                    "email": user.email,
+                    "first_name": user.first_name,
+                    "last_name": user.last_name
+                }
+            })
+
+        except ValueError:
+            return Response({"error": "Invalid Google token"}, status=status.HTTP_400_BAD_REQUEST)
