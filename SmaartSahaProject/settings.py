@@ -15,8 +15,27 @@ import environ
 from dotenv import load_dotenv
 load_dotenv()
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+import dj_database_url
+import os
+
+DATABASES = {
+    "default": dj_database_url.config(default=os.environ.get("DATABASE_URL"))
+}
+
+import os
+from pathlib import Path
+
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# ... reste du settings ...
+
+# API Key OpenRouter
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+
+# Vérification pour debug (à enlever en prod)
+if not OPENROUTER_API_KEY:
+    print("⚠️ OPENROUTER_API_KEY n'est pas défini !")
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -28,7 +47,7 @@ SECRET_KEY = 'django-insecure-a@(viw3go=9ig9b91==haz)npz@r939(%(d172ho@sri+vj)of
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Initialiser environ
@@ -36,8 +55,9 @@ env = environ.Env(
     DEBUG=(bool, False)
 )
 # Application definition
-environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
-OPENROUTER_API_KEY = env("OPENROUTER_API_KEY")
+# environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
+# OPENROUTER_API_KEY = env("OPENROUTER_API_KEY")
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -50,11 +70,14 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'drf_yasg',
+    'corsheaders',
 
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  
+    'whitenoise.middleware.WhiteNoiseMiddleware',  
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -62,6 +85,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
 
 ROOT_URLCONF = 'SmaartSahaProject.urls'
 TEMPLATES = [
@@ -89,16 +113,16 @@ WSGI_APPLICATION = 'SmaartSahaProject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'geodb',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': 'localhost',
-        'PORT': '5433',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'geodb',
+#         'USER': 'postgres',
+#         'PASSWORD': 'root',
+#         'HOST': 'localhost',
+#         'PORT': '5432',
+#     }
+# }
 
 
 # Password validation
@@ -137,6 +161,8 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -162,4 +188,13 @@ EMAIL_HOST_USER = "contact@smart-saha.com"   # ex: contact@monentreprise.com
 EMAIL_HOST_PASSWORD = "Sm4rts4h@"          # ou mot de passe d’application Zoho
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-# Clé API OpenRouter
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://precision-agriculture-virid.vercel.app",
+    "https://app.smart-saha.com",
+]
+
+# OU pour tout autoriser (pas recommandé en prod)
+# CORS_ALLOW_ALL_ORIGINS = True
