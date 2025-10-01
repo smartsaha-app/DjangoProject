@@ -16,3 +16,5 @@ whitenoise>=6.7,<7.0
 dj-database-url>=2.2,<3.0
 drf_yasg
 django-cors-headers
+google-auth==2.34.0
+google-auth-oauthlib==1.2.1
