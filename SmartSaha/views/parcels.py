@@ -16,8 +16,9 @@ class ParcelViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        # Filtrer les tâches de l'utilisateur connecté
-        return Parcel.objects.filter(owner= self.request.user)
+        if getattr(self, "swagger_fake_view", False):
+            return Parcel.objects.none()
+        return Parcel.objects.filter(owner=self.request.user)
 
 class ParcelPointViewSet(viewsets.ModelViewSet):
     queryset = ParcelPoint.objects.all()

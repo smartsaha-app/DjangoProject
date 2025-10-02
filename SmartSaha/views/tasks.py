@@ -19,8 +19,9 @@ class TaskViewSet(viewsets.ModelViewSet):
     filterset_fields = ['name', 'due_date', 'priority', 'status']
 
     def get_queryset(self):
-        # Filtrer les tâches de l'utilisateur connecté
-        return Task.objects.filter(parcelCrop__parcel__owner= self.request.user)
+        if getattr(self, "swagger_fake_view", False):
+            return Task.objects.none()
+        return Task.objects.filter(parcelCrop__parcel__owner=self.request.user)
 
     @action(detail=True, methods=['post'])
     def mark_done(self, request, pk=None):
