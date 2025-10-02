@@ -24,7 +24,8 @@ class ParcelCropViewSet(viewsets.ModelViewSet):
     serializer_class = ParcelCropSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    def get_queryset(self):
-        # Filtrer les tâches de l'utilisateur connecté
-        return ParcelCrop.objects.filter(parcel__owner=self.request.user)
+def get_queryset(self):
+    if getattr(self, 'swagger_fake_view', False):
+        return ParcelCrop.objects.none()
+    return ParcelCrop.objects.filter(parcel__owner=self.request.user)
 

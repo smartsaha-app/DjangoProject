@@ -13,9 +13,8 @@ class YieldRecordViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        """
-        Filtrer les rendements de l'utilisateur connecté uniquement
-        """
+        if getattr(self, 'swagger_fake_view', False):
+            return YieldRecord.objects.none()
         return YieldRecord.objects.filter(parcelCrop__parcel__owner=self.request.user)
 
 
