@@ -17,10 +17,10 @@ load_dotenv()
 
 import dj_database_url
 import os
-
-DATABASES = {
-    "default": dj_database_url.config(default=os.environ.get("DATABASE_URL"))
-}
+#
+# DATABASES = {
+#     "default": dj_database_url.config(default=os.environ.get("DATABASE_URL"))
+# }
 
 import os
 from pathlib import Path
@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'drf_yasg',
     'corsheaders',
+    'suivi_evaluation'
 
 ]
 
@@ -105,7 +106,7 @@ TEMPLATES = [
 ]
 
 STATIC_URL = "/static/"
-STATICFILES_DIRS = [BASE_DIR / "static"]
+STATICFILES_DIRS = [BASE_DIR / "smartSaha/static"]
 
 WSGI_APPLICATION = 'SmaartSahaProject.wsgi.application'
 
@@ -113,16 +114,16 @@ WSGI_APPLICATION = 'SmaartSahaProject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'geodb',
-#         'USER': 'postgres',
-#         'PASSWORD': 'root',
-#         'HOST': 'localhost',
-#         'PORT': '5432',
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'geodb',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': 'localhost',
+        'PORT': '5433',
+    }
+}
 
 
 # Password validation
