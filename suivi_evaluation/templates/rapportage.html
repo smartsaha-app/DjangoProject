@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plateforme de Rapportage - Smart Saha</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f4f4f4;
+        color: #333;
+    }
+    h1, h2 { text-align: center; }
+    .container { display: flex; flex-direction: column; gap: 20px; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 6px; overflow: hidden; box-shadow:0 2px 5px rgba(0,0,0,0.1);}
+    th, td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; }
+    th { background-color: #007bff; color: white; position: sticky; top:0; }
+    tr:nth-child(even) { background-color: #f9f9f9; }
+    .btn { padding:5px 10px; margin:2px; border:none; border-radius:4px; cursor:pointer; color:white;}
+    .btn-view { background-color:#17a2b8; }
+    .btn-edit { background-color:#ffc107; color:#333; }
+    .btn-delete { background-color:#dc3545; }
+    .btn-submit { background-color:#28a745; }
+    .btn-add { background-color:#007bff; }
+
+    /* Modal */
+    .modal { display:none; position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.5); justify-content:center; align-items:center; }
+    .modal-content { background:white; padding:20px; width:90%; max-width:800px; border-radius:6px; }
+
+    label { display:block; margin-top:10px; font-weight:bold; }
+    input, select, textarea, p { width:100%; padding:5px; margin-top:5px; }
+    .readonly p { background:#f0f0f0; padding:5px; border-radius:4px; }
+</style>
+</head>
+<body>
+
+<h1>Plateforme de Rapportage - Smart Saha</h1>
+
+<div class="container">
+
+    <!-- Bouton créer rapport -->
+    <div>
+        <button class="btn btn-add" onclick="openCreateModal()">➕ Créer un rapport</button>
+    </div>
+
+    <!-- Tableau des rapports -->
+    <div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nom du rapport</th>
+                    <th>Type</th>
+                    <th>Période</th>
+                    <th>Statut</th>
+                    <th>Dernière mise à jour</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Rapport Riz Saison 2025</td>
+                    <td>Production</td>
+                    <td>Saison 2025</td>
+                    <td>Brouillon</td>
+                    <td>2025-09-05</td>
+                    <td>
+                        <button class="btn btn-view" onclick="openDetailModal('Rapport Riz Saison 2025')">Voir</button>
+                        <button class="btn btn-edit">Modifier</button>
+                        <button class="btn btn-delete">Supprimer</button>
+                        <button class="btn btn-submit">Soumettre</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Traçabilité Soja 2025</td>
+                    <td>Traçabilité</td>
+                    <td>Saison 2025</td>
+                    <td>Soumis</td>
+                    <td>2025-09-03</td>
+                    <td>
+                        <button class="btn btn-view" onclick="openDetailModal('Traçabilité Soja 2025')">Voir</button>
+                        <button class="btn btn-edit">Modifier</button>
+                        <button class="btn btn-delete">Supprimer</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal création / édition -->
+<div class="modal" id="createModal">
+    <div class="modal-content">
+        <h2>Créer / Modifier un rapport</h2>
+        <form>
+            <label>Nom du rapport<input type="text" name="reportName" required></label>
+            <label>Type de rapport
+                <select name="reportType">
+                    <option value="production">Production</option>
+                    <option value="environnement">Environnement</option>
+                    <option value="tracabilite">Traçabilité</option>
+                </select>
+            </label>
+            <label>Période<input type="text" name="period" placeholder="Ex: Saison 2025" required></label>
+            <label>Parcelles / Producteurs concernés<textarea name="parcelles" rows="3"></textarea></label>
+            <label>Données à inclure<textarea name="dataIncluded" rows="3"></textarea></label>
+            <label>Commentaires<textarea name="comments" rows="2"></textarea></label>
+            <label>Pièces jointes<input type="file" multiple></label>
+            <div style="margin-top:10px; text-align:right;">
+                <button type="button" onclick="closeCreateModal()" class="btn btn-delete">Annuler</button>
+                <button type="submit" class="btn btn-submit">Enregistrer / Soumettre</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal détail (lecture seule) -->
+<div class="modal" id="detailModal">
+    <div class="modal-content readonly">
+        <h2>Détails du rapport</h2>
+        <p><strong>Nom du rapport :</strong> <span id="detailName"></span></p>
+        <p><strong>Type :</strong> <span id="detailType"></span></p>
+        <p><strong>Période :</strong> <span id="detailPeriod"></span></p>
+        <p><strong>Parcelles / Producteurs :</strong> <span id="detailParcelles"></span></p>
+        <p><strong>Données incluses :</strong> <span id="detailData"></span></p>
+        <p><strong>Commentaires :</strong> <span id="detailComments"></span></p>
+        <p><strong>Statut :</strong> <span id="detailStatus"></span></p>
+        <p><strong>Dernière mise à jour :</strong> <span id="detailUpdated"></span></p>
+        <div style="margin-top:10px; text-align:right;">
+            <button onclick="closeDetailModal()" class="btn btn-delete">Fermer</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openCreateModal(){ document.getElementById('createModal').style.display='flex'; }
+    function closeCreateModal(){ document.getElementById('createModal').style.display='none'; }
+
+    function openDetailModal(reportName){
+        // Exemple statique : remplir le modal avec les infos du rapport
+        document.getElementById('detailName').textContent = reportName;
+        document.getElementById('detailType').textContent = reportName.includes('Riz') ? 'Production' : 'Traçabilité';
+        document.getElementById('detailPeriod').textContent = 'Saison 2025';
+        document.getElementById('detailParcelles').textContent = 'Parcelle A, Parcelle B';
+        document.getElementById('detailData').textContent = 'Rendement, Intrants, Pratiques';
+        document.getElementById('detailComments').textContent = 'Vérification complète.';
+        document.getElementById('detailStatus').textContent = reportName.includes('Soumis') ? 'Soumis' : 'Brouillon';
+        document.getElementById('detailUpdated').textContent = '2025-09-05';
+        document.getElementById('detailModal').style.display='flex';
+    }
+    function closeDetailModal(){ document.getElementById('detailModal').style.display='none'; }
+</script>
+
+</body>
+</html>
