@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Management - Smart Saha</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        h1, h2 {
+            text-align: center;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Tableau principal */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        /* Surlignage des non-conformités */
+        .non-conforme {
+            background-color: #ffcccc;
+        }
+
+        /* Boutons */
+        .btn {
+            padding: 5px 10px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+        }
+
+        .btn-add { background-color: #28a745; }
+        .btn-delete { background-color: #dc3545; }
+        .btn-export { background-color: #007bff; }
+        .btn-import { background-color: #17a2b8; }
+        .btn-column { background-color: #6c757d; }
+
+        /* Logs */
+        .logs {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .logs table {
+            width: 100%;
+        }
+
+        .logs th {
+            background-color: #343a40;
+            color: white;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>Data Management - Smart Saha</h1>
+
+    <div class="container">
+
+        <!-- Boutons d'action -->
+        <div>
+            <button class="btn btn-add">➕ Ajouter une ligne</button>
+            <button class="btn btn-column">Ajouter une colonne</button>
+            <button class="btn btn-export">Exporter</button>
+            <button class="btn btn-import">Importer Kobo</button>
+        </div>
+
+        <!-- Tableau principal -->
+        <div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Producteur</th>
+                        <th>Parcelle</th>
+                        <th>Culture</th>
+                        <th>Superficie (ha)</th>
+                        <th>Rendement (kg/ha)</th>
+                        <th>Certification</th>
+                        <th>Statut</th>
+                        <th>Dernière mise à jour</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Rakoto Jean</td>
+                        <td>Ambatomena</td>
+                        <td>Riz</td>
+                        <td>1.2</td>
+                        <td>3800</td>
+                        <td>Bio</td>
+                        <td>Conforme</td>
+                        <td>2025-09-05</td>
+                        <td><button class="btn btn-delete">🗑</button></td>
+                    </tr>
+                    <tr class="non-conforme">
+                        <td>Mina Lalao</td>
+                        <td>Andranomena</td>
+                        <td>Mais</td>
+                        <td>0.8</td>
+                        <td>2500</td>
+                        <td>Fairtrade</td>
+                        <td>Non conforme</td>
+                        <td>2025-09-03</td>
+                        <td><button class="btn btn-delete">🗑</button></td>
+                    </tr>
+                    <tr>
+                        <td>Rasoa Hery</td>
+                        <td>Soamahamanina</td>
+                        <td>Soja</td>
+                        <td>2.0</td>
+                        <td>4100</td>
+                        <td>Bio</td>
+                        <td>Conforme</td>
+                        <td>2025-09-06</td>
+                        <td><button class="btn btn-delete">🗑</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Logs -->
+        <div class="logs">
+            <h2>Journal des modifications</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Utilisateur</th>
+                        <th>Type d’action</th>
+                        <th>Élément</th>
+                        <th>Ancienne valeur</th>
+                        <th>Nouvelle valeur</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Admin</td>
+                        <td>Modification</td>
+                        <td>Rendement Parcelle Ambatomena</td>
+                        <td>3700</td>
+                        <td>3800</td>
+                        <td>2025-09-05 14:23</td>
+                    </tr>
+                    <tr>
+                        <td>Agent terrain</td>
+                        <td>Ajout</td>
+                        <td>Nouvelle parcelle Soamahamanina</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>2025-09-06 09:15</td>
+                    </tr>
+                    <tr>
+                        <td>Admin</td>
+                        <td>Suppression</td>
+                        <td>Parcelle défectueuse</td>
+                        <td>Parcelle X</td>
+                        <td>-</td>
+                        <td>2025-09-04 11:50</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Smart Saha</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* Conteneur global */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-gap: 20px;
+        }
+
+        /* Blocs */
+        .block {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* KPI */
+        .kpi {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .kpi:last-child {
+            border-bottom: none;
+        }
+
+        .kpi-value {
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        /* Graphiques et cartes placeholder */
+        .chart, .map {
+            height: 200px;
+            background-color: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-weight: bold;
+        }
+
+        /* Notifications */
+        .notifications {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .notifications li {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .notifications li:last-child {
+            border-bottom: none;
+        }
+
+        /* Filtres */
+        .filters {
+            margin-bottom: 20px;
+        }
+
+        .filters select, .filters input {
+            padding: 5px 10px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Dashboard Smart Saha</h1>
+
+    <!-- Filtres -->
+    <div class="filters block">
+        <label>Organisation:
+            <select>
+                <option>Toutes</option>
+                <option>Coopérative SoaLandy</option>
+                <option>AgriCompagnie</option>
+            </select>
+        </label>
+        <label>Producteur:
+            <select>
+                <option>Tous</option>
+                <option>Rakoto Jean</option>
+                <option>Mina Lalao</option>
+            </select>
+        </label>
+        <label>Parcelle:
+            <select>
+                <option>Toutes</option>
+                <option>Ambatomena</option>
+                <option>Andranomena</option>
+            </select>
+        </label>
+        <label>Période:
+            <input type="month" value="2025-09">
+        </label>
+        <button>Filtrer</button>
+    </div>
+
+    <div class="dashboard">
+        <!-- Bloc KPI -->
+        <div class="block">
+            <h2>Indicateurs clés (KPI)</h2>
+            <div class="kpi">
+                <span>Nombre de producteurs suivis</span>
+                <span class="kpi-value">245</span>
+            </div>
+            <div class="kpi">
+                <span>Parcelles actives</span>
+                <span class="kpi-value">320</span>
+            </div>
+            <div class="kpi">
+                <span>Rendement moyen par parcelle</span>
+                <span class="kpi-value">3.8 t/ha</span>
+            </div>
+            <div class="kpi">
+                <span>Rendement moyen par organisation</span>
+                <span class="kpi-value">4.1 t/ha</span>
+            </div>
+            <div class="kpi">
+                <span>Taux de conformité aux certifications</span>
+                <span class="kpi-value">76%</span>
+            </div>
+        </div>
+
+        <!-- Bloc Graphiques -->
+        <div class="block">
+            <h2>Graphiques</h2>
+            <div class="chart">Barres / Lignes - Rendements dans le temps</div>
+            <div class="chart" style="margin-top:15px;">Camemberts - Parcelles par statut</div>
+        </div>
+
+        <!-- Bloc Carte -->
+        <div class="block">
+            <h2>Carte des parcelles</h2>
+            <div class="map">Mini-carte interactive (vert = OK, rouge = problème)</div>
+        </div>
+
+        <!-- Bloc Notifications -->
+        <div class="block">
+            <h2>Notifications rapides</h2>
+            <ul class="notifications">
+                <li>Parcelle Ambatomena : fertilisation en retard</li>
+                <li>Producteur Rakoto Jean : rendement inférieur à la moyenne</li>
+                <li>Certification Bio Coopérative SoaLandy : audit prévu</li>
+            </ul>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carte Interactive Smart Saha</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #map {
+            height: 600px;
+            width: 100%;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        /* Légende simple */
+        .legend {
+            background: white;
+            padding: 10px;
+            line-height: 18px;
+            color: #333;
+            border-radius: 4px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.3);
+            margin-top: 10px;
+        }
+        .legend span {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+        .legend .ok { background-color: green; }
+        .legend .probleme { background-color: red; }
+        .legend .attention { background-color: orange; }
+    </style>
+</head>
+<body>
+
+    <h1>Carte Interactive des Parcelles</h1>
+
+    <!-- Carte -->
+    <div id="map"></div>
+
+    <!-- Légende -->
+    <div class="legend">
+        <div><span class="ok"></span> Conformité OK</div>
+        <div><span class="probleme"></span> Parcelle à problème</div>
+        <div><span class="attention"></span> Parcelle à surveiller</div>
+    </div>
+
+    <!-- Scripts Leaflet -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Initialisation de la carte
+        var map = L.map('map').setView([-18.879, 47.507], 13);
+
+        // Fond de carte OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Exemple de parcelles (polygones)
+        var parcels = [
+            {
+                nom: "Parcelle Ambatomena",
+                statut: "ok",
+                points: [
+                    [-18.879, 47.507],
+                    [-18.879, 47.509],
+                    [-18.881, 47.509],
+                    [-18.881, 47.507]
+                ]
+            },
+            {
+                nom: "Parcelle Andranomena",
+                statut: "probleme",
+                points: [
+                    [-18.882, 47.506],
+                    [-18.882, 47.508],
+                    [-18.884, 47.508],
+                    [-18.884, 47.506]
+                ]
+            },
+            {
+                nom: "Parcelle Soamahamanina",
+                statut: "attention",
+                points: [
+                    [-18.878, 47.510],
+                    [-18.878, 47.512],
+                    [-18.880, 47.512],
+                    [-18.880, 47.510]
+                ]
+            }
+        ];
+
+        // Ajouter les polygones sur la carte
+        parcels.forEach(function(p) {
+            var color = p.statut === 'ok' ? 'green' : (p.statut === 'probleme' ? 'red' : 'orange');
+            L.polygon(p.points, {
+                color: color,
+                fillColor: color,
+                fillOpacity: 0.5
+            }).addTo(map)
+              .bindPopup(`<strong>${p.nom}</strong><br>Statut: ${p.statut}`);
+        });
+    </script>
+
+</body>
+</html>
