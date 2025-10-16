@@ -8,11 +8,12 @@ from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from SmartSaha.mixins.cache_mixins import CacheInvalidationMixin
 from SmartSaha.models import Task, TaskPriority, TaskStatus, ParcelCrop
 from SmartSaha.serializers import TaskSerializer, TaskPrioritySerializer, TaskStatusSerializer
 
 
-class TaskViewSet(viewsets.ModelViewSet):
+class TaskViewSet(CacheInvalidationMixin, viewsets.ModelViewSet):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -57,12 +58,12 @@ class TaskViewSet(viewsets.ModelViewSet):
             summary["by_priority"][priority.name] = tasks.filter(priority=priority).count()
         return Response(summary)
 
-class TaskStatusViewSet(viewsets.ModelViewSet):
+class TaskStatusViewSet(CacheInvalidationMixin, viewsets.ModelViewSet):
     queryset = TaskStatus.objects.all()
     serializer_class = TaskStatusSerializer
     permission_classes = [permissions.AllowAny]
 
-class TaskPriorityViewSet(viewsets.ModelViewSet):
+class TaskPriorityViewSet(CacheInvalidationMixin, viewsets.ModelViewSet):
     queryset = TaskPriority.objects.all()
     serializer_class = TaskPrioritySerializer
     permission_classes = [permissions.AllowAny]

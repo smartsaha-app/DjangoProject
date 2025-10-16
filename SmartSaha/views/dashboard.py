@@ -3,6 +3,7 @@ from django.shortcuts import render
 from django.db.models import Sum, Avg
 from django.db.models.functions import ExtractYear
 from django.utils import timezone
+from django.core.cache import cache
 
 from SmartSaha.models import Parcel, ParcelCrop, YieldRecord, YieldForecast, Crop, ClimateData
 
@@ -25,8 +26,12 @@ class DashboardViewSet(viewsets.ViewSet):
         Retourne le dashboard complet pour l'utilisateur connecté.
         """
         user = request.user
-        dashboard_service = DashboardService(user)
-        data = dashboard_service.get_full_dashboard()
+        cache_key = f"dashboard_full_{user.pk}"
+        data = cache.get(cache_key)
+        if not data:
+            dashboard_service = DashboardService(user)
+            data = dashboard_service.get_full_dashboard()
+            cache.set(cache_key, data, timeout=1800)
         return Response(data)
 
 @login_required(login_url='login')
