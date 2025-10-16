@@ -8,3 +8,5 @@ from .deepseek import AgronomyAssistantAPIView, assistant_agronome_api, assistan
 from .forecast import YieldForecastView
 from .dashboard import dashboard
 from .dashboard import DashboardViewSet
+from .groups import OrganisationViewSet, GroupTypeViewSet, GroupViewSet, GroupRoleViewSet, MemberGroupViewSet
+
