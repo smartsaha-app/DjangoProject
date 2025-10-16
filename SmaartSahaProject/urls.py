@@ -15,7 +15,7 @@ from SmartSaha.views import (
     TaskPriorityViewSet, TaskStatusViewSet, YieldRecordViewSet, SoilDataView,
     ClimateDataView, DataViewSet, ParcelFullDataViewSet, AgronomyAssistantAPIView,
     YieldForecastView, YieldAnalyticsView, DashboardViewSet, dashboard, tasks_view,
-    parcel_full_data_page, assistant_agronome_page, assistant_agronome_api
+     assistant_agronome_page, assistant_agronome_api
 )
 from SmartSaha.views.users import ForgotPasswordView, ResetPasswordView, GoogleLoginView
 
@@ -38,7 +38,7 @@ schema_view = get_schema_view(
 
 # Router API principal
 router = DefaultRouter()
-router.register(r'parcels', ParcelViewSet)
+router.register(r'parcels', ParcelViewSet, basename='parcel')
 router.register(r'parcel-points', ParcelPointViewSet)
 router.register(r'users', UserViewSet)
 router.register(r'crops', CropViewSet)
@@ -80,7 +80,7 @@ urlpatterns = [
     # Pages HTML
     path("dashboard/", dashboard, name="dashboard"),
     path('tasks/', tasks_view, name='tasks'),
-    path('parcels/<uuid:parcel_uuid>/view/', parcel_full_data_page, name='parcel-full-data-page'),
+    # path('parcels/<uuid:parcel_uuid>/view/', parcel_full_data_page, name='parcel-full-data-page'),
     path("assistant-agronome/", assistant_agronome_page, name="assistant_agronome_page"),
 
     # API spécifiques / non CRUD

@@ -1,4 +1,4 @@
-from .parcels import ParcelCreateView,ParcelViewSet, ParcelPointViewSet, ParcelFullDataViewSet, parcel_full_data_page
+from .parcels import  ParcelViewSet, ParcelPointViewSet, ParcelFullDataViewSet
 from  .users import UserViewSet, LoginView, SignupView,ForgotPasswordView,ResetPasswordView
 from .cultures import CropViewSet,VarietyViewSet,StatusCropViewSet,ParcelCropViewSet
 from .tasks import TaskViewSet, TaskStatusViewSet , TaskPriorityViewSet, tasks_view

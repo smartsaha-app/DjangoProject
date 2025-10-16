@@ -3,7 +3,9 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Prefetch
 from django_filters.rest_framework import DjangoFilterBackend
-from SmartSaha.permissions import IsGroupManager, IsAdminOrReadOnly, IsOwnerOrAdmin, CanAssignRole
+
+from SmartSaha.mixins.cache_mixins import CacheInvalidationMixin
+from SmartSaha.permissions import IsGroupLeader, IsAdminOrReadOnly, IsOwnerOrAdmin, CanAssignRole
 from SmartSaha.models import Organisation, GroupType, Group, GroupRole, MemberGroup
 from SmartSaha.serializers import (
     OrganisationSerializer,
@@ -33,7 +35,7 @@ class BaseModelViewSet(viewsets.ModelViewSet):
 
 
 # --- ORGANISATIONS ---
-class OrganisationViewSet(BaseModelViewSet):
+class OrganisationViewSet(CacheInvalidationMixin, BaseModelViewSet):
     queryset = Organisation.objects.all().order_by("-created_at")
     serializer_class = OrganisationSerializer
     filterset_fields = ["org_type"]
@@ -42,7 +44,7 @@ class OrganisationViewSet(BaseModelViewSet):
 
 
 # --- TYPES DE GROUPES ---
-class GroupTypeViewSet(BaseModelViewSet):
+class GroupTypeViewSet(CacheInvalidationMixin, BaseModelViewSet):
     queryset = GroupType.objects.all().order_by("name")
     serializer_class = GroupTypeSerializer
     search_fields = ["name"]
@@ -50,7 +52,7 @@ class GroupTypeViewSet(BaseModelViewSet):
 
 
 # --- GROUPES ---
-class GroupViewSet(BaseModelViewSet):
+class GroupViewSet(CacheInvalidationMixin, BaseModelViewSet):
     queryset = (
         Group.objects.select_related("organisation", "type", "created_by", "updated_by")
         .prefetch_related(
@@ -61,13 +63,13 @@ class GroupViewSet(BaseModelViewSet):
     serializer_class = GroupSerializer
     filterset_fields = ["status", "organisation", "type"]
     search_fields = ["name", "description"]
-    permission_classes = [IsAuthenticated, IsGroupManager | IsOwnerOrAdmin]
-    # => Managers et propriétaires peuvent modifier, admin a tous les droits
+    permission_classes = [IsAuthenticated, IsGroupLeader | IsOwnerOrAdmin]
+    # => Leaders et propriétaires peuvent modifier, admin a tous les droits
 
     def perform_create(self, serializer):
         group = serializer.save(created_by=self.request.user)
 
-        # Récupération du rôle "Manager" (ou création s’il n’existe pas)
+        # Récupération du rôle "Leader" (ou création s’il n’existe pas)
         leader_role, _ = GroupRole.objects.get_or_create(
             role_type=GroupRole.RoleType.LEADER,
             defaults={"name": "Chef de groupe"}
@@ -83,7 +85,7 @@ class GroupViewSet(BaseModelViewSet):
         return group
 
 # --- ROLES DE GROUPES ---
-class GroupRoleViewSet(BaseModelViewSet):
+class GroupRoleViewSet(CacheInvalidationMixin, BaseModelViewSet):
     queryset = GroupRole.objects.all().order_by("name")
     serializer_class = GroupRoleSerializer
     search_fields = ["name", "role_type"]
@@ -91,7 +93,7 @@ class GroupRoleViewSet(BaseModelViewSet):
 
 
 # --- MEMBRES DE GROUPES ---
-class MemberGroupViewSet(BaseModelViewSet):
+class MemberGroupViewSet(CacheInvalidationMixin, BaseModelViewSet):
     queryset = (
         MemberGroup.objects
         .select_related("user", "group", "role")
@@ -100,5 +102,5 @@ class MemberGroupViewSet(BaseModelViewSet):
     serializer_class = MemberGroupSerializer
     filterset_fields = ["status", "group", "role"]
     search_fields = ["user__username", "group__name"]
-    permission_classes = [IsAuthenticated, IsGroupManager | IsOwnerOrAdmin, CanAssignRole]
+    permission_classes = [IsAuthenticated, IsGroupLeader | IsOwnerOrAdmin, CanAssignRole]
     # => Un membre ne peut modifier que ses propres infos ou si c’est un manager/admin

@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.authtoken.models import Token
 
+from SmartSaha.mixins.cache_mixins import CacheInvalidationMixin
 from SmartSaha.serializers import UserSerializer, UserSignupSerializer, UserLoginSerializer
 from SmartSaha.models import User
 
@@ -23,7 +24,7 @@ def send_test_email():
         recipient_list=["test@gmail.com"],
         fail_silently=False,
     )
-class UserViewSet(viewsets.ModelViewSet):
+class UserViewSet(CacheInvalidationMixin, viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]  # protégé

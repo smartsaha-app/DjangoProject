@@ -206,3 +206,20 @@ CORS_ALLOWED_ORIGINS = [
 
 # OU pour tout autoriser (pas recommandé en prod)
 # CORS_ALLOW_ALL_ORIGINS = True
+
+# --- CACHE CONFIGURATION ---
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",  # ou "redis://redis:6379/1" si dans Docker
+        "TIMEOUT": 3600,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "IGNORE_EXCEPTIONS": True,  # Ne plante pas si Redis tombe
+        }
+    }
+}
+
+# OPTIONNEL : Session cache (pour améliorer la rapidité d’auth)
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"

@@ -3,11 +3,13 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+
+from SmartSaha.mixins.cache_mixins import CacheInvalidationMixin
 from SmartSaha.models import ParcelCrop
 from SmartSaha.services import YieldForecastService
 
 
-class YieldForecastView(APIView):
+class YieldForecastView(CacheInvalidationMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, parcel_crop_id):

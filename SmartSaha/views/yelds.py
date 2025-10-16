@@ -2,12 +2,13 @@ from rest_framework import viewsets, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from SmartSaha.mixins.cache_mixins import CacheInvalidationMixin
 from SmartSaha.models import YieldRecord
 from SmartSaha.serializers import YieldRecordSerializer
 from SmartSaha.services import YieldAnalyticsService
 
 
-class YieldRecordViewSet(viewsets.ModelViewSet):
+class YieldRecordViewSet(CacheInvalidationMixin, viewsets.ModelViewSet):
     queryset = YieldRecord.objects.all()
     serializer_class = YieldRecordSerializer
     permission_classes = [permissions.IsAuthenticated]
