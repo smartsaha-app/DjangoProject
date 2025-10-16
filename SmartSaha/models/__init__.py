@@ -6,3 +6,4 @@ from .tasks import Task, TaskStatus,TaskPriority
 from .yelds import YieldRecord,YieldForecast
 from .posts import Post, PostType, PostCurrency
 from .externalData import ClimateData,SoilData
+from .groups import Organisation, GroupType, GroupRole, Group, MemberGroup

@@ -361,3 +361,26 @@ username=hugueszeus@gmail.com&password=Hugues2011!
 GET https://api.isda-africa.com/isdasoil/v2/soilproperty?lat=-0.7196&lon=35.2400&prop=ph&depth=0-20cm
 Accept: application/json
 Authorization: Bearer {{access_token}}
+
+
+### 3. test groups
+GET {{baseUrl}}/groups/groups/
+Accept: application/json
+Authorization: Token 347be5de5501e526e9a14a279e18462463ee066c
+
+### 4. test groups-role
+GET {{baseUrl}}/groups/group-roles/
+Accept: application/json
+Authorization: Token 347be5de5501e526e9a14a279e18462463ee066c
+
+
+### 5. modification avec permissions
+POST http://localhost:8000/api/groups/groups/
+Authorization: Token 347be5de5501e526e9a14a279e18462463ee066c
+Content-Type: application/json
+
+{
+  "name": "Groupe test",
+  "organisation_id": "e65a2e8a-4f4c-4080-9c58-f6e861cf58ec",
+  "type_id": "6a83b498-0e4d-4086-9be2-4a39a9e73b7f"
+}

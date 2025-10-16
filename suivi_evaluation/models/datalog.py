@@ -42,3 +42,4 @@ class CustomFieldValue(models.Model):
     custom_field = models.ForeignKey(CustomField, on_delete=models.CASCADE)
     record_id = models.CharField(max_length=100)
     value = models.TextField()
+

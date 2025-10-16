@@ -1,1 +1,1 @@
-from .test_example import test_addition
+from .test_groups import *

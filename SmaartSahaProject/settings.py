@@ -17,7 +17,7 @@ load_dotenv()
 
 import dj_database_url
 import os
-
+#
 # DATABASES = {
 #     "default": dj_database_url.config(
 #         default=os.environ.get("DATABASE_URL"),
@@ -75,7 +75,8 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'drf_yasg',
     'corsheaders',
-
+    'suivi_evaluation',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -123,9 +124,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'geodb',
         'USER': 'postgres',
-        'PASSWORD': 'root',
+        'PASSWORD': 'postgres',
         'HOST': 'localhost',
-        'PORT': '5432',
+        'PORT': '5433',
     }
 }
 
@@ -180,6 +181,8 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+
 }
 
 AUTH_USER_MODEL = "SmartSaha.User"
