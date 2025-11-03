@@ -43,6 +43,8 @@ class CacheInvalidationMixin:
         Si obj est fourni, supprime aussi le cache spécifique à l'objet.
         """
         # Cache global du ViewSet
+
+
         keys = cache.keys(f"{self.cache_prefix}:*")
         for k in keys:
             cache.delete(k)
@@ -69,3 +71,5 @@ class CacheInvalidationMixin:
     def perform_destroy(self, instance):
         self.invalidate_cache(instance)
         instance.delete()
+
+

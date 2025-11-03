@@ -53,8 +53,8 @@ class Group(models.Model):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=150, unique=True)
     description = models.TextField(blank=True, null=True)
-    type = models.ForeignKey(GroupType, on_delete=models.SET_NULL, null=True, related_name="groups")
-    organisation = models.ForeignKey(Organisation, on_delete=models.SET_NULL, null=True, related_name="groups")
+    type = models.ForeignKey(GroupType, models.CASCADE, null=False,blank=False, related_name="groups")
+    organisation = models.ForeignKey(Organisation, models.CASCADE, null=False, related_name="groups")
     status = models.CharField(max_length=20, choices=GroupStatus.choices, default=GroupStatus.ACTIVE)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="groups_created")
     updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="groups_updated")
@@ -68,8 +68,12 @@ class Group(models.Model):
         indexes = [
             models.Index(fields=["status"]),
             models.Index(fields=["organisation"]),
+            models.Index(fields=['organisation', 'status']),  # filtrage rapide par org + statut
+            models.Index(fields=['type', 'status']),  # filtrage par type de groupe + statut
             models.Index(fields=["type"]),
         ]
+
+
 
 # TODO: creation d'un model role pour gerer les roles des utilisateurs dans le(s) group(s)
 class GroupRole(models.Model):
@@ -103,7 +107,7 @@ class MemberGroup(models.Model):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="group_memberships")
     group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name="members")
-    role = models.ForeignKey(GroupRole, on_delete=models.SET_NULL, null=True, related_name="members_with_role")
+    role = models.ForeignKey(GroupRole, models.CASCADE, null=False, related_name="members_with_role")
     status = models.CharField(max_length=20, choices=MembershipStatus.choices, default=MembershipStatus.ACTIVE)
     joined_at = models.DateTimeField(auto_now_add=True)
 
@@ -112,6 +116,9 @@ class MemberGroup(models.Model):
             models.Index(fields=["status"]),
             models.Index(fields=["group"]),
             models.Index(fields=["role"]),
+            models.Index(fields=['group', 'status']),
+            models.Index(fields=['role', 'status']),
+
         ]
         unique_together = ("user", "group")
 

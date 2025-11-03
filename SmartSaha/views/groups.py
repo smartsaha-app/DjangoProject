@@ -36,7 +36,10 @@ class BaseModelViewSet(viewsets.ModelViewSet):
 
 # --- ORGANISATIONS ---
 class OrganisationViewSet(CacheInvalidationMixin, BaseModelViewSet):
+    print("OrganisationViewSet")
+    cache_prefix = "organisation"
     queryset = Organisation.objects.all().order_by("-created_at")
+    print(queryset)
     serializer_class = OrganisationSerializer
     filterset_fields = ["org_type"]
     search_fields = ["name", "description"]
@@ -45,6 +48,7 @@ class OrganisationViewSet(CacheInvalidationMixin, BaseModelViewSet):
 
 # --- TYPES DE GROUPES ---
 class GroupTypeViewSet(CacheInvalidationMixin, BaseModelViewSet):
+    cache_prefix = "group-types"
     queryset = GroupType.objects.all().order_by("name")
     serializer_class = GroupTypeSerializer
     search_fields = ["name"]
@@ -53,6 +57,7 @@ class GroupTypeViewSet(CacheInvalidationMixin, BaseModelViewSet):
 
 # --- GROUPES ---
 class GroupViewSet(CacheInvalidationMixin, BaseModelViewSet):
+    cache_prefix = "groups"
     queryset = (
         Group.objects.select_related("organisation", "type", "created_by", "updated_by")
         .prefetch_related(
@@ -62,7 +67,8 @@ class GroupViewSet(CacheInvalidationMixin, BaseModelViewSet):
     )
     serializer_class = GroupSerializer
     filterset_fields = ["status", "organisation", "type"]
-    search_fields = ["name", "description"]
+    search_fields = ['name', 'organisation__name']
+    ordering_fields = ['created_at', 'name']
     permission_classes = [IsAuthenticated, IsGroupLeader | IsOwnerOrAdmin]
     # => Leaders et propriétaires peuvent modifier, admin a tous les droits
 
@@ -86,6 +92,7 @@ class GroupViewSet(CacheInvalidationMixin, BaseModelViewSet):
 
 # --- ROLES DE GROUPES ---
 class GroupRoleViewSet(CacheInvalidationMixin, BaseModelViewSet):
+    cache_prefix = "group-roles"
     queryset = GroupRole.objects.all().order_by("name")
     serializer_class = GroupRoleSerializer
     search_fields = ["name", "role_type"]
@@ -94,6 +101,7 @@ class GroupRoleViewSet(CacheInvalidationMixin, BaseModelViewSet):
 
 # --- MEMBRES DE GROUPES ---
 class MemberGroupViewSet(CacheInvalidationMixin, BaseModelViewSet):
+    cache_prefix = "member-groups"
     queryset = (
         MemberGroup.objects
         .select_related("user", "group", "role")
@@ -101,6 +109,6 @@ class MemberGroupViewSet(CacheInvalidationMixin, BaseModelViewSet):
     )
     serializer_class = MemberGroupSerializer
     filterset_fields = ["status", "group", "role"]
-    search_fields = ["user__username", "group__name"]
+    search_fields = ["user__username", "group__name", "role__role_type"]
     permission_classes = [IsAuthenticated, IsGroupLeader | IsOwnerOrAdmin, CanAssignRole]
     # => Un membre ne peut modifier que ses propres infos ou si c’est un manager/admin

@@ -1,0 +1,533 @@
+import React, { useState } from 'react';
+import { Plus, Edit2, Trash2, MapPin, Calendar, Package, TrendingUp, X, Save } from 'lucide-react';
+
+const SmartSahaDashboard = () => {
+  const [activeSection, setActiveSection] = useState('dashboard');
+  const [showModal, setShowModal] = useState(false);
+  const [modalType, setModalType] = useState('');
+  const [selectedItem, setSelectedItem] = useState(null);
+  
+  const [parcels, setParcels] = useState([
+    { id: 1, name: 'Tanimboly Avaratra', size: '2 ha', crop: 'Vary', status: 'Tsara' },
+    { id: 2, name: 'Saha Andrefana', size: '1.5 ha', crop: 'Katsaka', status: 'Mila fikarakarana' }
+  ]);
+  
+  const [tasks, setTasks] = useState([
+    { id: 1, title: 'Famadiham-bary', parcel: 'Tanimboly Avaratra', date: '2025-11-01', status: 'Tsy vita' },
+    { id: 2, title: 'Fanondrahan-drano', parcel: 'Saha Andrefana', date: '2025-10-29', status: 'Vita' }
+  ]);
+  
+  const [yields, setYields] = useState([
+    { id: 1, parcel: 'Tanimboly Avaratra', crop: 'Vary', amount: '3000', date: '2025-09-15' },
+    { id: 2, parcel: 'Saha Andrefana', crop: 'Katsaka', amount: '1500', date: '2025-08-20' }
+  ]);
+
+  const [formData, setFormData] = useState({});
+
+  const openModal = (type, item = null) => {
+    setModalType(type);
+    setSelectedItem(item);
+    setFormData(item || {});
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setSelectedItem(null);
+    setFormData({});
+  };
+
+  const handleDelete = (type, id) => {
+    if (window.confirm('Hofafana ve ity zavatra ity?')) {
+      if (type === 'parcel') {
+        setParcels(parcels.filter(p => p.id !== id));
+      } else if (type === 'task') {
+        setTasks(tasks.filter(t => t.id !== id));
+      } else if (type === 'yield') {
+        setYields(yields.filter(y => y.id !== id));
+      }
+    }
+  };
+
+  const handleSave = () => {
+    if (modalType === 'parcel') {
+      if (selectedItem) {
+        setParcels(parcels.map(p => p.id === selectedItem.id ? { ...p, ...formData } : p));
+      } else {
+        setParcels([...parcels, { ...formData, id: Date.now(), status: 'Tsara' }]);
+      }
+    } else if (modalType === 'task') {
+      if (selectedItem) {
+        setTasks(tasks.map(t => t.id === selectedItem.id ? { ...t, ...formData } : t));
+      } else {
+        setTasks([...tasks, { ...formData, id: Date.now(), status: 'Tsy vita' }]);
+      }
+    } else if (modalType === 'yield') {
+      if (selectedItem) {
+        setYields(yields.map(y => y.id === selectedItem.id ? { ...y, ...formData } : y));
+      } else {
+        setYields([...yields, { ...formData, id: Date.now() }]);
+      }
+    }
+    closeModal();
+  };
+
+  const updateFormData = (field, value) => {
+    setFormData({ ...formData, [field]: value });
+  };
+
+  const stats = [
+    { 
+      icon: <MapPin className="w-8 h-8" />, 
+      value: parcels.length, 
+      label: 'Tanimboly', 
+      color: 'bg-green-500',
+      description: 'Isan\'ny tanimboly'
+    },
+    { 
+      icon: <Calendar className="w-8 h-8" />, 
+      value: tasks.filter(t => t.status === 'Tsy vita').length, 
+      label: 'Asa tsy vita', 
+      color: 'bg-orange-500',
+      description: 'Asa mbola tsy vita'
+    },
+    { 
+      icon: <Package className="w-8 h-8" />, 
+      value: yields.reduce((sum, y) => sum + parseInt(y.amount || 0), 0) + ' kg', 
+      label: 'Vokatra', 
+      color: 'bg-blue-500',
+      description: 'Vokatra rehetra'
+    },
+    { 
+      icon: <TrendingUp className="w-8 h-8" />, 
+      value: '95%', 
+      label: 'Fahombiazana', 
+      color: 'bg-purple-500',
+      description: 'Tahan\'ny fahombiazana'
+    }
+  ];
+
+  const renderDashboard = () => (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {stats.map((stat, idx) => (
+          <div key={idx} className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition">
+            <div className="flex items-center gap-4">
+              <div className={`${stat.color} p-3 rounded-lg text-white`}>
+                {stat.icon}
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-gray-800">{stat.value}</p>
+                <p className="text-sm font-semibold text-gray-600">{stat.label}</p>
+                <p className="text-xs text-gray-500">{stat.description}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
+        <h2 className="text-2xl font-bold mb-4">🌱 Asa haingana - Azo atao izao</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <button 
+            onClick={() => openModal('parcel')}
+            className="bg-white text-green-600 rounded-lg p-4 hover:bg-green-50 transition flex items-center gap-3"
+          >
+            <Plus className="w-6 h-6" />
+            <span className="font-semibold">Hanampy tanimboly</span>
+          </button>
+          <button 
+            onClick={() => openModal('task')}
+            className="bg-white text-green-600 rounded-lg p-4 hover:bg-green-50 transition flex items-center gap-3"
+          >
+            <Plus className="w-6 h-6" />
+            <span className="font-semibold">Hanampy asa</span>
+          </button>
+          <button 
+            onClick={() => openModal('yield')}
+            className="bg-white text-green-600 rounded-lg p-4 hover:bg-green-50 transition flex items-center gap-3"
+          >
+            <Plus className="w-6 h-6" />
+            <span className="font-semibold">Hanoratra vokatra</span>
+          </button>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-md p-6">
+        <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+          📋 Asa farany
+        </h3>
+        <div className="space-y-3">
+          {tasks.slice(0, 3).map(task => (
+            <div key={task.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+              <div>
+                <p className="font-semibold text-gray-800">{task.title}</p>
+                <p className="text-sm text-gray-600">{task.parcel} • {task.date}</p>
+              </div>
+              <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                task.status === 'Vita' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
+              }`}>
+                {task.status}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-6">
+        <h3 className="text-lg font-bold text-blue-900 mb-2">💡 Torohevitra</h3>
+        <p className="text-blue-800">
+          Tsara ny manoratra ny asa isan'andro mba hahafahana manara-maso ny tanimboly tsara. 
+          Mitantana ny tanimboly araka ny toetr'andro sy ny karazana voly.
+        </p>
+      </div>
+    </div>
+  );
+
+  const renderCRUD = (type) => {
+    let data, columns, title;
+    
+    if (type === 'parcels') {
+      data = parcels;
+      title = '🗺️ Fitantanana ny Tanimboly';
+      columns = ['Anarana', 'Habe', 'Voly', 'Toe-javatra', 'Asa'];
+    } else if (type === 'tasks') {
+      data = tasks;
+      title = '✅ Fitantanana ny Asa';
+      columns = ['Asa', 'Tanimboly', 'Daty', 'Toe-javatra', 'Asa'];
+    } else {
+      data = yields;
+      title = '📦 Fitantanana ny Vokatra';
+      columns = ['Tanimboly', 'Voly', 'Habetsahana', 'Daty', 'Asa'];
+    }
+
+    return (
+      <div className="bg-white rounded-xl shadow-md p-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <h2 className="text-2xl font-bold text-gray-800">{title}</h2>
+          <button 
+            onClick={() => openModal(type.slice(0, -1))}
+            className="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition flex items-center gap-2 shadow-md"
+          >
+            <Plus className="w-5 h-5" />
+            <span className="font-semibold">Hanampy vaovao</span>
+          </button>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b-2 border-gray-200 bg-gray-50">
+                {columns.map((col, idx) => (
+                  <th key={idx} className="text-left p-4 font-bold text-gray-700">{col}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {data.length === 0 ? (
+                <tr>
+                  <td colSpan={columns.length} className="text-center p-8 text-gray-500">
+                    Tsy misy zavatra eto ankehitriny. Tsindrio "Hanampy vaovao" mba hanomboka.
+                  </td>
+                </tr>
+              ) : (
+                data.map((item) => (
+                  <tr key={item.id} className="border-b border-gray-100 hover:bg-gray-50 transition">
+                    {type === 'parcels' && (
+                      <>
+                        <td className="p-4 font-semibold text-gray-800">{item.name}</td>
+                        <td className="p-4">{item.size}</td>
+                        <td className="p-4">{item.crop}</td>
+                        <td className="p-4">
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            item.status === 'Tsara' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
+                          }`}>
+                            {item.status}
+                          </span>
+                        </td>
+                      </>
+                    )}
+                    {type === 'tasks' && (
+                      <>
+                        <td className="p-4 font-semibold text-gray-800">{item.title}</td>
+                        <td className="p-4">{item.parcel}</td>
+                        <td className="p-4">{item.date}</td>
+                        <td className="p-4">
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            item.status === 'Vita' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
+                          }`}>
+                            {item.status}
+                          </span>
+                        </td>
+                      </>
+                    )}
+                    {type === 'yields' && (
+                      <>
+                        <td className="p-4 font-semibold text-gray-800">{item.parcel}</td>
+                        <td className="p-4">{item.crop}</td>
+                        <td className="p-4 font-bold text-green-600">{item.amount} kg</td>
+                        <td className="p-4">{item.date}</td>
+                      </>
+                    )}
+                    <td className="p-4">
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => openModal(type.slice(0, -1), item)}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                          title="Hanova"
+                        >
+                          <Edit2 className="w-5 h-5" />
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(type.slice(0, -1), item.id)}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
+                          title="Hamafa"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  };
+
+  const renderModal = () => {
+    if (!showModal) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-xl font-bold text-gray-800">
+              {selectedItem ? '✏️ Hanova' : '➕ Hanampy'} {
+                modalType === 'parcel' ? 'Tanimboly' : 
+                modalType === 'task' ? 'Asa' : 'Vokatra'
+              }
+            </h3>
+            <button onClick={closeModal} className="text-gray-500 hover:text-gray-700 p-1 rounded-lg hover:bg-gray-100">
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+          
+          <div className="space-y-4">
+            {modalType === 'parcel' && (
+              <>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">📍 Anaran'ny tanimboly</label>
+                  <input 
+                    type="text" 
+                    value={formData.name || ''}
+                    onChange={(e) => updateFormData('name', e.target.value)}
+                    className="w-full p-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                    placeholder="Ohatra: Tanimboly Avaratra" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">📏 Habe (hekitara)</label>
+                  <input 
+                    type="text" 
+                    value={formData.size || ''}
+                    onChange={(e) => updateFormData('size', e.target.value)}
+                    className="w-full p-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                    placeholder="Ohatra: 2 ha" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">🌾 Voly</label>
+                  <select 
+                    value={formData.crop || ''}
+                    onChange={(e) => updateFormData('crop', e.target.value)}
+                    className="w-full p-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  >
+                    <option value="">Safidio ny voly...</option>
+                    <option value="Vary">Vary</option>
+                    <option value="Katsaka">Katsaka</option>
+                    <option value="Voatabia">Voatabia</option>
+                    <option value="Tsaramaso">Tsaramaso</option>
+                    <option value="Hafa">Hafa</option>
+                  </select>
+                </div>
+              </>
+            )}
+            
+            {modalType === 'task' && (
+              <>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">✅ Anaran'ny asa</label>
+                  <input 
+                    type="text" 
+                    value={formData.title || ''}
+                    onChange={(e) => updateFormData('title', e.target.value)}
+                    className="w-full p-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                    placeholder="Ohatra: Famadiham-bary" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">🗺️ Tanimboly</label>
+                  <select 
+                    value={formData.parcel || ''}
+                    onChange={(e) => updateFormData('parcel', e.target.value)}
+                    className="w-full p-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  >
+                    <option value="">Safidio ny tanimboly...</option>
+                    {parcels.map(p => <option key={p.id} value={p.name}>{p.name}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">📅 Daty</label>
+                  <input 
+                    type="date" 
+                    value={formData.date || ''}
+                    onChange={(e) => updateFormData('date', e.target.value)}
+                    className="w-full p-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">🎯 Toe-javatra</label>
+                  <select 
+                    value={formData.status || ''}
+                    onChange={(e) => updateFormData('status', e.target.value)}
+                    className="w-full p-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  >
+                    <option value="Tsy vita">Tsy vita</option>
+                    <option value="Vita">Vita</option>
+                  </select>
+                </div>
+              </>
+            )}
+            
+            {modalType === 'yield' && (
+              <>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">🗺️ Tanimboly</label>
+                  <select 
+                    value={formData.parcel || ''}
+                    onChange={(e) => updateFormData('parcel', e.target.value)}
+                    className="w-full p-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  >
+                    <option value="">Safidio ny tanimboly...</option>
+                    {parcels.map(p => <option key={p.id} value={p.name}>{p.name}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">🌾 Voly</label>
+                  <input 
+                    type="text" 
+                    value={formData.crop || ''}
+                    onChange={(e) => updateFormData('crop', e.target.value)}
+                    className="w-full p-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                    placeholder="Ohatra: Vary" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">⚖️ Habetsahan'ny vokatra (kg)</label>
+                  <input 
+                    type="number" 
+                    value={formData.amount || ''}
+                    onChange={(e) => updateFormData('amount', e.target.value)}
+                    className="w-full p-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                    placeholder="Ohatra: 3000" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">📅 Daty</label>
+                  <input 
+                    type="date" 
+                    value={formData.date || ''}
+                    onChange={(e) => updateFormData('date', e.target.value)}
+                    className="w-full p-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                  />
+                </div>
+              </>
+            )}
+            
+            <div className="flex gap-3 pt-4">
+              <button 
+                type="button" 
+                onClick={closeModal} 
+                className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition font-bold text-gray-700"
+              >
+                ❌ Hanakatona
+              </button>
+              <button 
+                type="button"
+                onClick={handleSave}
+                className="flex-1 px-4 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition font-bold flex items-center justify-center gap-2 shadow-md"
+              >
+                <Save className="w-5 h-5" />
+                ✅ Hitahiry
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
+              <span className="text-3xl">🌾</span>
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-800">SmartSaha</h1>
+              <p className="text-sm text-gray-600">Fitantanana ny tanimboly</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="hidden md:flex bg-gray-100 rounded-lg p-1">
+              <button className="px-4 py-2 bg-white rounded-md shadow-sm font-bold text-sm text-green-600">🇲🇬 Malagasy</button>
+              <button className="px-4 py-2 text-gray-600 font-semibold text-sm hover:bg-gray-50 rounded-md transition">🇫🇷 Français</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <nav className="bg-white border-b border-gray-200 sticky top-[73px] z-30">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex gap-1 overflow-x-auto">
+            {[
+              { id: 'dashboard', icon: '🏠', label: 'Fandraisana' },
+              { id: 'parcels', icon: '🗺️', label: 'Tanimboly' },
+              { id: 'tasks', icon: '✅', label: 'Asa' },
+              { id: 'yields', icon: '📦', label: 'Vokatra' }
+            ].map(item => (
+              <button
+                key={item.id}
+                onClick={() => setActiveSection(item.id)}
+                className={`flex items-center gap-2 px-6 py-4 font-bold transition whitespace-nowrap ${
+                  activeSection === item.id
+                    ? 'text-green-600 border-b-4 border-green-600 bg-green-50'
+                    : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+                }`}
+              >
+                <span className="text-xl">{item.icon}</span>
+                <span>{item.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </nav>
+
+      <main className="max-w-7xl mx-auto px-4 py-6">
+        {activeSection === 'dashboard' && renderDashboard()}
+        {activeSection === 'parcels' && renderCRUD('parcels')}
+        {activeSection === 'tasks' && renderCRUD('tasks')}
+        {activeSection === 'yields' && renderCRUD('yields')}
+      </main>
+
+      {renderModal()}
+    </div>
+  );
+};
+
+export default SmartSahaDashboard;
