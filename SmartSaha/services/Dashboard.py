@@ -1,6 +1,7 @@
 from django.core.cache import cache
 from django.db.models import Sum, Avg, Count, F, Q
-from SmartSaha.models import Parcel, ParcelCrop, YieldRecord, Task, SoilData, ClimateData
+from SmartSaha.models import Parcel, ParcelCrop, YieldRecord, Task, SoilData, ClimateData, WeatherData
+
 
 class DashboardService:
     """
@@ -50,38 +51,180 @@ class DashboardService:
         cache.set(cache_key, soil_summary, timeout=self.CACHE_TIMEOUT)
         return soil_summary
 
-    # ---------------- Climat ----------------
-    def get_climate_summary(self):
-        cache_key = f"dashboard_{self.user.pk}_climate"
+    # ---------------- Météo ----------------
+    def get_weather_summary(self):
+        cache_key = f"dashboard_{self.user.pk}_weather"
         data = cache.get(cache_key)
         if data:
             return data
 
-        parcels = Parcel.objects.filter(owner=self.user).prefetch_related("climatedata_set")
-        climate_summary = []
+        parcels = Parcel.objects.filter(owner=self.user).prefetch_related("weatherdata_set")
+        weather_summary = []
 
         for parcel in parcels:
-            t2m_values = []
-            prectot_values = []
-            for climate in parcel.climatedata_set.all():
-                params = climate.data.get("properties", {}).get("parameter", {})
-                for v in params.get("T2M", {}).values():
-                    if isinstance(v, (int, float)) and v != -999:
-                        t2m_values.append(v)
-                for v in params.get("PRECTOTCORR", {}).values():
-                    if isinstance(v, (int, float)) and v != -999:
-                        prectot_values.append(v)
+            # Récupérer les données météo les plus récentes
+            latest_weather = parcel.weatherdata_set.order_by('-created_at').first()
 
-            summary = {
-                "avg_temperature": sum(t2m_values)/len(t2m_values) if t2m_values else None,
-                "total_precipitation": sum(prectot_values) if prectot_values else None
-            } if t2m_values or prectot_values else None
+            if latest_weather:
+                # Utiliser les propriétés calculées de WeatherData
+                summary = {
+                    "current_temperature": latest_weather.current_temperature,
+                    "total_precipitation": latest_weather.total_precipitation,
+                    "risk_level": latest_weather.risk_level,
+                    "location": latest_weather.location_name,
+                    "alerts_count": len(latest_weather.agricultural_alerts),
+                    "optimal_planting_days": latest_weather.optimal_planting_days,
+                    "irrigation_recommendation": latest_weather.irrigation_recommendation,
+                    "weather_summary": latest_weather.get_weather_summary()
+                }
+            else:
+                summary = None
 
-            climate_summary.append({"parcel_id": str(parcel.uuid), "climate_summary": summary})
+            weather_summary.append({
+                "parcel_id": str(parcel.uuid),
+                "parcel_name": parcel.parcel_name,
+                "weather_summary": summary
+            })
 
-        cache.set(cache_key, climate_summary, timeout=self.CACHE_TIMEOUT)
-        return climate_summary
+        cache.set(cache_key, weather_summary, timeout=self.CACHE_TIMEOUT)
+        return weather_summary
 
+    def get_enhanced_weather_summary(self):
+        """Version enrichie avec analyse agricole complète"""
+        cache_key = f"dashboard_{self.user.pk}_enhanced_weather"
+        data = cache.get(cache_key)
+        if data:
+            return data
+
+        parcels = Parcel.objects.filter(owner=self.user).prefetch_related("weatherdata_set")
+        enhanced_summary = []
+
+        for parcel in parcels:
+            latest_weather = parcel.weatherdata_set.order_by('-created_at').first()
+
+            if latest_weather:
+                # Utiliser l'analyseur agricole pour des insights avancés
+                from SmartSaha.services import AgriculturalAnalyzer
+                analyzer = AgriculturalAnalyzer()
+                analysis = analyzer.analyze_weather_data(latest_weather)
+
+                summary = {
+                    # Données de base
+                    "current_temperature": latest_weather.current_temperature,
+                    "total_precipitation": latest_weather.total_precipitation,
+                    "risk_level": latest_weather.risk_level,
+                    "location": latest_weather.location_name,
+
+                    # Alertes et risques
+                    "alerts": latest_weather.agricultural_alerts,
+                    "high_priority_alerts": [a for a in latest_weather.agricultural_alerts if a['severity'] == 'HIGH'],
+                    "risk_assessment": analysis['risk_assessment'],
+
+                    # Recommandations agricoles
+                    "optimal_planting_days": analysis['optimal_planting_days'],
+                    "irrigation_recommendation": analysis['irrigation_recommendation'],
+                    "growing_degree_days": latest_weather.calculate_growing_degree_days(),
+
+                    # Résumé météo
+                    "weather_conditions": latest_weather.get_weather_summary(),
+                    "data_type": latest_weather.data_type,
+                    "last_updated": latest_weather.created_at
+                }
+            else:
+                summary = {
+                    "status": "no_data",
+                    "message": "Aucune donnée météo disponible"
+                }
+
+            enhanced_summary.append({
+                "parcel_id": str(parcel.uuid),
+                "parcel_name": parcel.parcel_name,
+                "weather_data": summary
+            })
+
+        cache.set(cache_key, enhanced_summary, timeout=self.CACHE_TIMEOUT)
+        return enhanced_summary
+
+    def get_dashboard_weather_overview(self):
+        """Version compacte pour le dashboard principal"""
+        cache_key = f"dashboard_{self.user.pk}_weather_overview"
+        data = cache.get(cache_key)
+        if data:
+            return data
+
+        parcels = Parcel.objects.filter(owner=self.user)
+        overview = {
+            "total_parcels": parcels.count(),
+            "parcels_with_weather_data": 0,
+            "high_risk_parcels": 0,
+            "total_alerts": 0,
+            "parcel_details": []
+        }
+
+        for parcel in parcels:
+            latest_weather = WeatherData.objects.filter(parcel=parcel).order_by('-created_at').first()
+
+            if latest_weather:
+                overview["parcels_with_weather_data"] += 1
+
+                alerts = latest_weather.agricultural_alerts
+                high_risk_alerts = [a for a in alerts if a['severity'] == 'HIGH']
+
+                if latest_weather.risk_level == 'HIGH' or len(high_risk_alerts) > 0:
+                    overview["high_risk_parcels"] += 1
+
+                overview["total_alerts"] += len(alerts)
+
+                parcel_info = {
+                    "parcel_id": str(parcel.uuid),
+                    "parcel_name": parcel.parcel_name,
+                    "current_temperature": latest_weather.current_temperature,
+                    "risk_level": latest_weather.risk_level,
+                    "alerts_count": len(alerts),
+                    "high_priority_alerts": len(high_risk_alerts),
+                    "location": latest_weather.location_name
+                }
+            else:
+                parcel_info = {
+                    "parcel_id": str(parcel.uuid),
+                    "parcel_name": parcel.parcel_name,
+                    "status": "no_data"
+                }
+
+            overview["parcel_details"].append(parcel_info)
+
+        cache.set(cache_key, overview, timeout=self.CACHE_TIMEOUT)
+        return overview
+
+    def refresh_weather_data(self):
+        """Force le rafraîchissement des données météo pour toutes les parcelles"""
+        from SmartSaha.services import WeatherDataCollector
+
+        collector = WeatherDataCollector()
+        parcels = Parcel.objects.filter(owner=self.user)
+
+        refresh_results = []
+
+        for parcel in parcels:
+            if parcel.points:  # Vérifier que la parcelle a des coordonnées
+                result = collector.collect_and_save_weather_data(parcel)
+                refresh_results.append({
+                    "parcel_name": parcel.parcel_name,
+                    "success": result['success'],
+                    "alerts_generated": result.get('alerts_generated', 0),
+                    "error": result.get('error')
+                })
+
+        # Nettoyer le cache
+        cache_keys = [
+            f"dashboard_{self.user.pk}_weather",
+            f"dashboard_{self.user.pk}_enhanced_weather",
+            f"dashboard_{self.user.pk}_weather_overview"
+        ]
+        for key in cache_keys:
+            cache.delete(key)
+
+        return refresh_results
     # ---------------- Rendements ----------------
     def get_yield_summary(self):
         cache_key = f"dashboard_{self.user.pk}_yield"
@@ -150,7 +293,7 @@ class DashboardService:
         return {
             "parcels": self.get_parcels_data(),
             "soil_summary": self.get_soil_summary(),
-            "climate_summary": self.get_climate_summary(),
+            "climate_summary": self.get_dashboard_weather_overview(),
             "yield_summary": self.get_yield_summary(),
             "task_summary": self.get_task_summary(),
         }
