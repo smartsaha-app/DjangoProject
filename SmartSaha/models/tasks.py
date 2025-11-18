@@ -9,10 +9,10 @@ class Task(models.Model):
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=255)
     description = models.TextField()
-    parcelCrop = models.ForeignKey('SmartSaha.ParcelCrop', on_delete=models.SET_NULL, null=True, blank=True)
+    parcelCrop = models.ForeignKey('SmartSaha.ParcelCrop', on_delete=models.CASCADE, null=True, blank=True)
     due_date = models.DateField()
-    priority = models.ForeignKey('SmartSaha.TaskPriority', on_delete=models.SET_NULL, null=True, blank=True) # ex: high, medium, low
-    status = models.ForeignKey('SmartSaha.TaskStatus', on_delete=models.SET_NULL, null=True, blank=True)    # ex: pending, done
+    priority = models.ForeignKey('SmartSaha.TaskPriority', on_delete=models.CASCADE, null=True, blank=True) # ex: high, medium, low
+    status = models.ForeignKey('SmartSaha.TaskStatus', on_delete=models.CASCADE, null=True, blank=True)    # ex: pending, done
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     completed_at = models.DateTimeField(null=True, blank=True)

@@ -5,7 +5,7 @@ from django.db import models
 # -------------------------------
 class YieldRecord(models.Model):
     id = models.BigAutoField(primary_key=True)
-    parcelCrop = models.ForeignKey('SmartSaha.ParcelCrop', on_delete=models.SET_NULL, null=True, blank=True)
+    parcelCrop = models.ForeignKey('SmartSaha.ParcelCrop', on_delete=models.CASCADE, null=True, blank=True)
     date = models.DateField()
     yield_amount = models.FloatField()
     area = models.FloatField()
@@ -17,7 +17,7 @@ class YieldRecord(models.Model):
 
 
 class YieldForecast(models.Model):
-    parcelCrop = models.ForeignKey('SmartSaha.ParcelCrop', on_delete=models.SET_NULL, null=True, blank=True)
+    parcelCrop = models.ForeignKey('SmartSaha.ParcelCrop', on_delete=models.CASCADE, null=True, blank=True)
     forecast_date = models.DateField()  # date pour laquelle on prévoit le rendement
     predicted_yield = models.FloatField()  # rendement prévu par hectare
     created_at = models.DateTimeField(auto_now_add=True)
