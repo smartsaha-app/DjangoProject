@@ -6,6 +6,9 @@ from SmartSaha.views import (
     GroupViewSet,
     GroupRoleViewSet,
     MemberGroupViewSet,
+    WeatherDataViewSet,
+    AgriculturalAlertViewSet,
+    WeatherCollectionViewSet
 )
 
 # --- ROUTER PRINCIPAL ---
@@ -15,6 +18,8 @@ router.register(r'group-types', GroupTypeViewSet, basename='group-type')
 router.register(r'groups', GroupViewSet, basename='group')
 router.register(r'group-roles', GroupRoleViewSet, basename='group-role')
 router.register(r'member-groups', MemberGroupViewSet, basename='member-group')
+
+
 
 urlpatterns = [
     path('', include(router.urls)),

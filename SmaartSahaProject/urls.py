@@ -15,7 +15,7 @@ from SmartSaha.views import (
     TaskPriorityViewSet, TaskStatusViewSet, YieldRecordViewSet, SoilDataView,
     ClimateDataView, DataViewSet, ParcelFullDataViewSet, AgronomyAssistantAPIView,
     YieldForecastView, YieldAnalyticsView, DashboardViewSet, dashboard, tasks_view,
-     assistant_agronome_page, assistant_agronome_api
+     assistant_agronome_page, assistant_agronome_api, WeatherDataViewSet, WeatherCollectionViewSet, AgriculturalAlertViewSet
 )
 from SmartSaha.views.users import ForgotPasswordView, ResetPasswordView, GoogleLoginView
 
@@ -53,6 +53,14 @@ router.register(r'external-data', DataViewSet, basename='external-data')
 router.register(r'parcels-full', ParcelFullDataViewSet, basename='parcels-full')
 router.register(r'dashboard', DashboardViewSet, basename='dashboard')
 
+
+router.register(r'weather-data', WeatherDataViewSet, basename='weatherdata')
+
+router.register(r'agricultural-alerts', AgriculturalAlertViewSet, basename='agriculturalalerts')
+
+router.register(r'weather-collection', WeatherCollectionViewSet, basename='weathercollection')
+
+
 urlpatterns = [
     path('', redirect_to_swagger, name='home'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
@@ -89,4 +97,6 @@ urlpatterns = [
     path("api/climate-data/", ClimateDataView.as_view(), name="climate-data"),
     path('forecast/<int:parcel_crop_id>/', YieldForecastView.as_view(), name='yield_forecast'),
     path("analytics/yields/", YieldAnalyticsView.as_view(), name="yield-analytics"),
+
+
 ]
