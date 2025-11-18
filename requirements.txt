@@ -19,4 +19,4 @@ django-cors-headers
 google-auth==2.34.0
 google-auth-oauthlib==1.2.1
 celery
-django_filters
+django-filter==23.3 
