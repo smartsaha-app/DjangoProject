@@ -39,7 +39,7 @@ class OrganisationViewSet(CacheInvalidationMixin, BaseModelViewSet):
     print("OrganisationViewSet")
     cache_prefix = "organisation"
     queryset = Organisation.objects.all().order_by("-created_at")
-    print(queryset)
+    # print(queryset)
     serializer_class = OrganisationSerializer
     filterset_fields = ["org_type"]
     search_fields = ["name", "description"]
