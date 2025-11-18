@@ -2,7 +2,6 @@ from functools import lru_cache
 import requests
 from django.utils import timezone
 from SmartSaha.models import Parcel, SoilData, WeatherData, YieldRecord
-from SmartSaha.services import WeatherDataCollector  # Import du nouveau service
 
 
 class ParcelDataService:
@@ -44,6 +43,7 @@ class ParcelDataService:
             return recent_weather
 
         # Si pas de données récentes, utiliser le nouveau collecteur
+        from SmartSaha.services import WeatherDataCollector  # Import du nouveau service
         collector = WeatherDataCollector()
         result = collector.collect_and_save_weather_data(parcel)
 
