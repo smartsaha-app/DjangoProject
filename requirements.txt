@@ -21,4 +21,4 @@ google-auth-oauthlib==1.2.1
 celery
 django-filter==23.3
 django-filter==23.3
-django-redis==25.2
+django-redis==6.0.0
