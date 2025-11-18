@@ -4,10 +4,10 @@ from django.db import models
 # -------------------------------
 class Message(models.Model):
     id = models.BigAutoField(primary_key=True)
-    sender = models.ForeignKey('SmartSaha.User', on_delete=models.SET_NULL, null=True, related_name="sent_messages")
-    receiver = models.ForeignKey('SmartSaha.User', on_delete=models.SET_NULL, null=True, related_name="received_messages")
+    sender = models.ForeignKey('SmartSaha.User', on_delete=models.CASCADE, null=True, related_name="sent_messages")
+    receiver = models.ForeignKey('SmartSaha.User', on_delete=models.CASCADE, null=True, related_name="received_messages")
     content = models.TextField()
-    post = models.ForeignKey('SmartSaha.Post', on_delete=models.SET_NULL, null=True, blank=True)
+    post = models.ForeignKey('SmartSaha.Post', on_delete=models.CASCADE, null=True, blank=True)
     subject = models.CharField(max_length=255, default='No Subject')
     created_at = models.DateTimeField(auto_now_add=True)
 
