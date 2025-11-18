@@ -4,23 +4,48 @@ from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from SmartSaha.models import Parcel, ParcelPoint, ParcelCrop, YieldRecord
-from SmartSaha.serializers import ParcelSerializer, ParcelPointSerializer
+from SmartSaha.serializers import ParcelSerializer, ParcelPointSerializer, ParcelWeatherSerializer
 from SmartSaha.services import ParcelService, ParcelDataService
 from SmartSaha.mixins.cache_mixins import CacheInvalidationMixin
 
 CACHE_TIMEOUT = 60 * 15  # 15 minutes
 
-class ParcelViewSet(CacheInvalidationMixin, viewsets.ModelViewSet):
-    serializer_class = ParcelSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    cache_prefix = "parcel"
-    use_object_cache = True
 
-    def get_queryset(self):
-        if getattr(self, "swagger_fake_view", False):
-            return Parcel.objects.none()
-        return Parcel.objects.filter(owner=self.request.user).only("id", "uuid", "parcel_name", "points")
+class ParcelViewSet(viewsets.ModelViewSet):
+    """Vues pour les parcelles - utilise votre serializer existant"""
+    queryset = Parcel.objects.all()
+    serializer_class = ParcelSerializer  # Votre serializer existant
+    lookup_field = 'uuid'
 
+    # AJOUT : Action pour l'API météo
+    @action(detail=False, methods=['get'])
+    def with_gps(self, request):
+        """Liste les parcelles avec points GPS (pour API météo)"""
+        parcels = Parcel.objects.filter(points__isnull=False).exclude(points=[])
+
+        # Utilise le serializer spécialisé météo pour une réponse légère
+        serializer = ParcelWeatherSerializer(parcels, many=True)
+
+        return Response({
+            'success': True,
+            'count': parcels.count(),
+            'parcels': serializer.data
+        })
+
+    # AJOUT : Détail d'une parcelle pour météo
+    @action(detail=True, methods=['get'])
+    def weather_info(self, request, uuid=None):
+        """Informations spécifiques pour l'API météo"""
+        parcel = self.get_object()
+
+        # Utilise le serializer spécialisé météo
+        serializer = ParcelWeatherSerializer(parcel)
+
+        return Response({
+            'success': True,
+            'parcel': serializer.data,
+            'can_collect_weather': bool(parcel.points) and len(parcel.points) > 0
+        })
 class ParcelPointViewSet(CacheInvalidationMixin, viewsets.ModelViewSet):
     queryset = ParcelPoint.objects.all()
     serializer_class = ParcelPointSerializer

@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from pathlib import Path
 import environ
+from celery.schedules import crontab
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -223,3 +224,10 @@ CACHES = {
 # OPTIONNEL : Session cache (pour améliorer la rapidité d’auth)
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
+WEATHER_API_KEY = 'bb9e11ef9ae046bf953133218252008'
+CELERY_BEAT_SCHEDULE = {
+    'collect-weather-data-daily': {
+        'task': 'agriculture.tasks.collect_weather_data',
+        'schedule': crontab(hour=6, minute=0),  # Tous les jours à 6h
+    },
+}
