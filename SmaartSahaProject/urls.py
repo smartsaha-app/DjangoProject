@@ -6,8 +6,8 @@ from rest_framework import permissions
 from rest_framework.routers import DefaultRouter
 from django.shortcuts import redirect
 from django.contrib.auth import views as auth_views
-from suivi_evaluation.router import router as suivi_eval_router  # <-- import router suivi-evaluation
-from SmartSaha.router import router as groups_router  # <-- import router groups smartsaha
+from suivi_evaluation.router import router as suivi_eval_router
+from SmartSaha.router import router as groups_router
 
 from SmartSaha.views import (
     ParcelViewSet, ParcelPointViewSet, UserViewSet, SignupView, LoginView,
