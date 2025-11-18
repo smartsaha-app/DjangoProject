@@ -80,9 +80,7 @@ class ParcelFullDataViewSet(CacheInvalidationMixin, viewsets.ViewSet):
 
         # Soil + Climate
         soil_obj = ParcelDataService.fetch_soil(parcel)
-        climate_obj = ParcelDataService.fetch_climate(parcel,
-                                                      start=request.GET.get("start"),
-                                                      end=request.GET.get("end"))
+        climate_obj = ParcelDataService.fetch_weather(parcel)
 
         # Parcel crops + yield
         parcel_crops = parcel.parcel_crops.all().annotate(

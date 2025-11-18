@@ -1,9 +1,7 @@
 from functools import lru_cache
-
 import requests
 from django.utils import timezone
-
-from SmartSaha.models import Parcel, SoilData, ClimateData, YieldRecord
+from SmartSaha.models import Parcel, SoilData, WeatherData, YieldRecord
 
 
 class ParcelDataService:
@@ -33,25 +31,54 @@ class ParcelDataService:
         return None
 
     @staticmethod
-    def fetch_climate(parcel: Parcel, start=None, end=None):
-        climate_data_obj = ClimateData.objects.filter(parcel=parcel).order_by('-created_at').last()
-        if climate_data_obj:
-            return climate_data_obj
+    def fetch_weather(parcel: Parcel):
+        """Remplacer ClimateData par WeatherData avec le nouveau système"""
+        # Vérifier d'abord si on a des données récentes (moins de 24h)
+        recent_weather = WeatherData.objects.filter(
+            parcel=parcel,
+            created_at__gte=timezone.now() - timezone.timedelta(hours=24)
+        ).order_by('-created_at').first()
 
-        point = ParcelDataService.get_first_point(parcel)
-        lat, lon = point["lat"], point["lng"]
-        start = start or timezone.now().strftime("%Y%m%d")
-        end = end or (timezone.now() + timezone.timedelta(days=7)).strftime("%Y%m%d")
+        if recent_weather:
+            return recent_weather
 
-        url = (
-            f"https://power.larc.nasa.gov/api/temporal/daily/point?"
-            f"parameters=T2M,PRECTOTCORR&community=AG&longitude={lon}&latitude={lat}"
-            f"&start={start}&end={end}&format=JSON"
-        )
-        resp = requests.get(url)
-        if resp.status_code == 200:
-            return ClimateData.objects.create(parcel=parcel, data=resp.json(), start=start, end=end)
-        return None
+        # Si pas de données récentes, utiliser le nouveau collecteur
+        from SmartSaha.services import WeatherDataCollector  # Import du nouveau service
+        collector = WeatherDataCollector()
+        result = collector.collect_and_save_weather_data(parcel)
+
+        if result['success']:
+            return result['weather_data']
+        else:
+            # Fallback : créer un WeatherData minimal avec message d'erreur
+            return WeatherData.objects.create(
+                parcel=parcel,
+                data={'error': result['error']},
+                start=timezone.now().date(),
+                end=timezone.now().date() + timezone.timedelta(days=1),
+                location_name="Erreur de collecte",
+                data_type='CURRENT',
+                risk_level='LOW'
+            )
+
+    @staticmethod
+    def get_weather_analysis(parcel: Parcel):
+        """Récupère l'analyse météo complète pour une parcelle"""
+        weather_data = ParcelDataService.fetch_weather(parcel)
+
+        if not weather_data:
+            return None
+
+        # Utiliser le nouvel analyseur agricole
+        from SmartSaha.services import AgriculturalAnalyzer
+        analyzer = AgriculturalAnalyzer()
+
+        return {
+            'weather_data': weather_data,
+            'analysis': analyzer.analyze_weather_data(weather_data),
+            'alerts': weather_data.agricultural_alerts,
+            'summary': weather_data.get_weather_summary()
+        }
 
     @staticmethod
     # @lru_cache(maxsize=128)
@@ -98,3 +125,24 @@ class ParcelDataService:
                     "notes": yr.notes
                 })
         return yield_records
+
+    @staticmethod
+    def get_complete_parcel_data(parcel_uuid: str):
+        """Récupère toutes les données d'une parcelle (sol + météo + cultures)"""
+        try:
+            parcel = Parcel.objects.get(uuid=parcel_uuid)
+
+            return {
+                'parcel': {
+                    'uuid': str(parcel.uuid),
+                    'name': parcel.parcel_name,
+                    'points': parcel.points,
+                    'created_at': parcel.created_at
+                },
+                'soil_data': ParcelDataService.fetch_soil(parcel),
+                'weather_data': ParcelDataService.get_weather_analysis(parcel),
+                'crops': ParcelDataService.build_parcel_crops(parcel),
+                'yield_records': ParcelDataService.build_yield_records(parcel)
+            }
+        except Parcel.DoesNotExist:
+            return None
