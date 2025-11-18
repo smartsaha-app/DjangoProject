@@ -43,33 +43,31 @@ class CacheInvalidationMixin:
         Si obj est fourni, supprime aussi le cache spécifique à l'objet.
         """
         # Cache global du ViewSet
-
-
-        keys = cache.keys(f"{self.cache_prefix}:*")
+        keys = cache.keys(f"{self.cache_prefix}:*") or []  
         for k in keys:
             cache.delete(k)
 
         # Cache spécifique à l'objet (ex: Parcel)
-        if obj and hasattr(obj, "id"):
-            obj_key = self.get_cache_key(f"detail:{obj.id}")
-            cache.delete(obj_key)
-            # Si lié à un parcel
-            if hasattr(obj, "parcel") and obj.parcel:
-                parcel_key = f"parcel_full_data_{obj.parcel.id}"
+        if obj:
+            # Pour obj lui-même
+            if hasattr(obj, "uuid"):
+                obj_key = self.get_cache_key(f"detail:{obj.uuid}")
+                cache.delete(obj_key)
+
+            # Si obj est lié à un Parcel
+            if hasattr(obj, "parcel") and obj.parcel and hasattr(obj.parcel, "uuid"):
+                parcel_key = f"parcel_full_data_{obj.parcel.uuid}"
                 cache.delete(parcel_key)
 
+
     def perform_create(self, serializer):
-        instance = serializer.save()
-        self.invalidate_cache(instance)
-        return instance
+        serializer.save()
+        self.invalidate_cache(serializer.instance)  
 
     def perform_update(self, serializer):
-        instance = serializer.save()
-        self.invalidate_cache(instance)
-        return instance
+        serializer.save()
+        self.invalidate_cache(serializer.instance)
 
     def perform_destroy(self, instance):
         self.invalidate_cache(instance)
         instance.delete()
-
-
