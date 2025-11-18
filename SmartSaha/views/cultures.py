@@ -1,4 +1,5 @@
 from rest_framework import viewsets, permissions
+from rest_framework.exceptions import PermissionDenied
 
 from SmartSaha.mixins.cache_mixins import CacheInvalidationMixin
 from SmartSaha.models import Crop, StatusCrop, Variety, ParcelCrop
@@ -21,12 +22,24 @@ class VarietyViewSet(CacheInvalidationMixin, viewsets.ModelViewSet):
     permission_classes = [permissions.AllowAny]
 
 class ParcelCropViewSet(CacheInvalidationMixin, viewsets.ModelViewSet):
-    queryset = ParcelCrop.objects.all()
     serializer_class = ParcelCropSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-def get_queryset(self):
-    if getattr(self, 'swagger_fake_view', False):
-        return ParcelCrop.objects.none()
-    return ParcelCrop.objects.filter(parcel__owner=self.request.user)
+    def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return ParcelCrop.objects.none()
+        return ParcelCrop.objects.filter(parcel__owner=self.request.user)
 
+    def perform_create(self, serializer):
+        # Vérifier que la parcelle appartient à l'utilisateur
+        parcel = serializer.validated_data['parcel']
+        if parcel.owner != self.request.user:
+            raise PermissionDenied("Vous ne pouvez pas ajouter de culture à cette parcelle")
+        serializer.save()
+
+    def perform_update(self, serializer):
+        # Vérifier que la parcelle appartient à l'utilisateur
+        parcel = serializer.validated_data.get('parcel', serializer.instance.parcel)
+        if parcel.owner != self.request.user:
+            raise PermissionDenied("Vous ne pouvez pas modifier cette culture")
+        serializer.save()
