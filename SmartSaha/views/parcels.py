@@ -5,6 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from SmartSaha.models import Parcel, ParcelPoint, ParcelCrop, YieldRecord
+from SmartSaha.permissions import logger
 from SmartSaha.serializers import ParcelSerializer, ParcelPointSerializer, ParcelWeatherSerializer
 from SmartSaha.services import ParcelService, ParcelDataService
 from SmartSaha.mixins.cache_mixins import CacheInvalidationMixin
@@ -81,51 +82,77 @@ class ParcelPointViewSet(CacheInvalidationMixin, viewsets.ModelViewSet):
         instance = serializer.save()
         self.invalidate_cache(getattr(instance, "parcel", instance))
         return instance
+
+
 class ParcelFullDataViewSet(CacheInvalidationMixin, viewsets.ViewSet):
     cache_prefix = "parcel_full_data"
     use_object_cache = True
 
     @action(detail=True, methods=["get"])
     def full_data(self, request, pk=None):
-        key = self.get_cache_key(pk)
-        cached = cache.get(key)
-        if cached:
-            return Response(cached)
+        # key = self.get_cache_key(pk)
+        # cached = cache.get(key)
+        # if cached:
+        #     return Response(cached)
 
         try:
-            parcel = Parcel.objects.select_related("owner").prefetch_related(
-                "parcel_crops__yieldrecord_set",
-                "parcel_points"
-            ).get(pk=pk, owner=request.user)
+            parcel = Parcel.objects.get(uuid=pk, owner=request.user)
+            complete_data = ParcelDataService.get_complete_parcel_data(str(parcel.uuid))
+
+            if not complete_data:
+                return Response({"error": "Parcel data not found"}, status=404)
+
+            response = {
+                "parcel": complete_data['parcel'],
+                "soil_data": ParcelDataService.serialize_soil_data(complete_data['soil_data']),
+                "weather_data": ParcelDataService.serialize_weather_data(complete_data['weather_data']),
+                "parcel_crops": complete_data['crops'],
+                "yield_records": complete_data['yield_records'],
+                "tasks": complete_data['tasks'],
+                "tasks_summary": complete_data['tasks_summary']
+            }
+
+            # cache.set(key, response, timeout=CACHE_TIMEOUT)
+            return Response(response)
+
+        except Parcel.DoesNotExist:
+            return Response({"error": "Parcel not found"}, status=404)
+        except Exception as e:
+            logger.error(f"Error in ParcelFullDataViewSet.full_data: {str(e)}")
+            return Response({"error": "Internal server error"}, status=500)
+
+    # Optionnel : Ajouter une action pour les tâches uniquement
+    @action(detail=True, methods=["get"])
+    def tasks(self, request, pk=None):
+        """Endpoint dédié pour récupérer uniquement les tâches d'une parcelle"""
+        try:
+            parcel = Parcel.objects.get(uuid=pk, owner=request.user)
+            tasks_data = ParcelDataService.build_parcel_tasks(parcel)
+            return Response(tasks_data)
         except Parcel.DoesNotExist:
             return Response({"error": "Parcel not found"}, status=404)
 
-        # Soil + Climate
-        soil_obj = ParcelDataService.fetch_soil(parcel)
-        climate_obj = ParcelDataService.fetch_weather(parcel)
+    # Optionnel : Ajouter une action pour le résumé des tâches
+    @action(detail=True, methods=["get"])
+    def tasks_summary(self, request, pk=None):
+        """Endpoint dédié pour le résumé des tâches (dashboard)"""
+        try:
+            parcel = Parcel.objects.get(uuid=pk, owner=request.user)
+            tasks_summary = ParcelDataService.get_tasks_summary(parcel)
+            return Response(tasks_summary)
+        except Parcel.DoesNotExist:
+            return Response({"error": "Parcel not found"}, status=404)
 
-        # Parcel crops + yield
-        parcel_crops = parcel.parcel_crops.all().annotate(
-            total_yield=Sum("yieldrecord__yield_amount"),
-            avg_yield=Avg("yieldrecord__yield_amount")
-        )
-        crops_data = [
-            {"id": pc.id, "crop_name": pc.crop.name if pc.crop else None,
-             "total_yield": pc.total_yield, "avg_yield": pc.avg_yield}
-            for pc in parcel_crops
-        ]
-
-        yield_records = YieldRecord.objects.filter(parcelCrop__parcel=parcel).values(
-            "id", "yield_amount", "date", "parcelCrop_id"
-        )
-
-        response = {
-            "parcel": {"id": str(parcel.uuid), "name": parcel.parcel_name, "points": parcel.points},
-            "soil_data": soil_obj.data if soil_obj else None,
-            "climate_data": climate_obj.data if climate_obj else None,
-            "parcel_crops": crops_data,
-            "yield_records": list(yield_records)
-        }
-
-        cache.set(key, response, timeout=CACHE_TIMEOUT)
-        return Response(response)
+    @action(detail=True, methods=["post"])
+    def refresh_soil_data(self, request, pk=None):
+        """Endpoint pour forcer le rafraîchissement des données sol"""
+        try:
+            parcel = Parcel.objects.get(uuid=pk, owner=request.user)
+            soil_data = ParcelDataService.refresh_soil_data(parcel)
+            return Response({
+                "status": "success",
+                "message": "Données sol rafraîchies",
+                "soil_data": ParcelDataService.serialize_soil_data(soil_data)
+            })
+        except Parcel.DoesNotExist:
+            return Response({"error": "Parcel not found"}, status=404)

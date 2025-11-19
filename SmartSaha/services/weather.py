@@ -3,6 +3,9 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 from django.utils import timezone
 
+from SmartSaha.models import WeatherData
+from SmartSaha.services import ParcelDataService
+
 
 class WeatherDataService:
     """Service concret pour la gestion des données météo"""
@@ -351,44 +354,48 @@ class WeatherDataCollector:
             print(f"Erreur extraction centre: {e}")
             return None, None
 
-    def collect_and_save_weather_data(self, parcel) -> Dict:
-        """Collecte et sauvegarde les données météo pour une parcelle"""
+    def collect_and_save_weather_data(self, parcel, forecast_days=8, include_hourly=False):
+        """Collecte les données météo pour 8 jours"""
         try:
-            # Extraire le centre du polygone
-            latitude, longitude = self._extract_center_from_points(parcel.points)
+            point = ParcelDataService.get_first_point(parcel)
+            lat, lon = point["lat"], point["lng"]
 
-            if not latitude or not longitude:
-                return {
-                    'success': False,
-                    'error': 'Impossible de déterminer le centre de la parcelle'
-                }
-
-            # Récupération des données météo
-            weather_data = self.api_client.get_forecast(latitude, longitude, days=8)
-
-            if not weather_data:
-                return {
-                    'success': False,
-                    'error': 'Impossible de récupérer les données météo'
-                }
-
-            # Sauvegarde dans la base
-            result = self.weather_service.process_weather_data(weather_data, parcel)
-
-            print(f"Données météo sauvegardées pour {parcel.parcel_name}: {result['alerts_count']} alertes")
-
-            return {
-                'success': True,
-                'weather_data_id': result['weather_data'].id,
-                'alerts_generated': result['alerts_count'],
-                'risk_level': result['risk_level'],
-                'location': weather_data['location']['name'],
-                'coordinates_used': {'lat': latitude, 'lng': longitude}
+            # Appel API avec 8 jours de prévision
+            url = "http://api.weatherapi.com/v1/forecast.json"
+            params = {
+                'key': settings.WEATHER_API_KEY,
+                'q': f"{lat},{lon}",
+                'days': forecast_days,  # 8 jours
+                'aqi': 'no',
+                'alerts': 'no'
             }
+
+            if not include_hourly:
+                params['hour'] = '0'  # Exclure les données horaires
+
+            print(f"🔍 Appel API Weather avec params: {params}")  # Debug
+            response = requests.get(url, params=params)
+
+            if response.status_code == 200:
+                data = response.json()
+                print(f"📊 Données reçues: {len(data.get('forecast', {}).get('forecastday', []))} jours")  # Debug
+
+                # Créer l'objet WeatherData
+                weather_data = WeatherData.objects.create(
+                    parcel=parcel,
+                    data=data,
+                    start=timezone.now().date(),
+                    end=timezone.now().date() + timezone.timedelta(days=forecast_days - 1),
+                    location_name=data.get('location', {}).get('name', 'Unknown'),
+                    data_type='FORECAST_8_DAYS',
+                    risk_level='LOW'
+                )
+
+                return {'success': True, 'weather_data': weather_data}
+            else:
+                print(f"❌ Erreur API: {response.status_code} - {response.text}")  # Debug
+                return {'success': False, 'error': f"API error: {response.status_code}"}
 
         except Exception as e:
-            print(f"Erreur collecte météo pour {parcel.parcel_name}: {e}")
-            return {
-                'success': False,
-                'error': str(e)
-            }
+            print(f"❌ Exception: {str(e)}")  # Debug
+            return {'success': False, 'error': str(e)}

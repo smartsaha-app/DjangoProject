@@ -28,7 +28,7 @@ class WeatherDataViewSet(viewsets.ModelViewSet):
 
             # Récupération de la parcelle (à adapter selon votre modèle Parcel)
             from SmartSaha.models import Parcel
-            parcel = get_object_or_404(Parcel, id=parcel_id)
+            parcel = get_object_or_404(Parcel, uuid=parcel_id)
 
             # Traitement des données
             result = self.weather_service.process_weather_data(raw_data, parcel)
