@@ -177,7 +177,7 @@ class ParcelDataService:
         return ParcelDataService.fetch_soil(parcel, force_refresh=True)
 
     @staticmethod
-    def fetch_weather(parcel: Parcel, required_days=8):
+    def fetch_weather(parcel: Parcel, required_days=3):
         """Version qui vérifie si les données existantes ont assez de jours"""
 
         # Vérifier d'abord si on a des données récentes ET avec assez de jours
@@ -220,7 +220,7 @@ class ParcelDataService:
             )
 
     @staticmethod
-    def has_enough_forecast_days(weather_data, required_days=8):
+    def has_enough_forecast_days(weather_data, required_days=3):
         """Vérifie si les données météo ont assez de jours de prévision"""
         if not weather_data or not weather_data.data:
             return False

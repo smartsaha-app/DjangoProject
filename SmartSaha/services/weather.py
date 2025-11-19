@@ -291,7 +291,7 @@ class WeatherAPIClient:
         self.api_key = getattr(settings, 'WEATHER_API_KEY', 'bb9e11ef9ae046bf953133218252008')
         self.base_url = "http://api.weatherapi.com/v1"
 
-    def get_forecast(self, latitude: float, longitude: float, days: int = 8) -> Optional[Dict]:
+    def get_forecast(self, latitude: float, longitude: float, days: int = 3) -> Optional[Dict]:
         """Récupère les prévisions météo pour une localisation"""
         try:
             url = f"{self.base_url}/forecast.json"
@@ -354,7 +354,7 @@ class WeatherDataCollector:
             print(f"Erreur extraction centre: {e}")
             return None, None
 
-    def collect_and_save_weather_data(self, parcel, forecast_days=8, include_hourly=False):
+    def collect_and_save_weather_data(self, parcel, forecast_days=3, include_hourly=False):
         """Collecte les données météo pour 8 jours"""
         try:
             point = ParcelDataService.get_first_point(parcel)
