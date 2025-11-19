@@ -170,24 +170,6 @@ class ResetPasswordView(APIView):
         )
 
 
-# Créez une vue de test
-class TestEmailView(APIView):
-    permission_classes = []
-
-    def post(self, request):
-        try:
-            send_mail(
-                subject="Test Configuration Email - SmartSaha",
-                message="Ceci est un test de configuration email.",
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=["hugueszeus@gmail.com"],  # Remplacez par votre email
-                fail_silently=False,
-            )
-            return Response({"message": "Email de test envoyé"})
-        except Exception as e:
-            return Response({"error": f"Erreur: {str(e)}"}, status=500)
-
-
 class GoogleLoginView(APIView):
     permission_classes = []  # public
 
