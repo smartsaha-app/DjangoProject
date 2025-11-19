@@ -17,7 +17,7 @@ from SmartSaha.views import (
     YieldForecastView, YieldAnalyticsView, DashboardViewSet, dashboard, tasks_view,
      assistant_agronome_page, assistant_agronome_api, WeatherDataViewSet, WeatherCollectionViewSet, AgriculturalAlertViewSet
 )
-from SmartSaha.views.users import ForgotPasswordView, ResetPasswordView, GoogleLoginView, TestEmailView
+from SmartSaha.views.users import ForgotPasswordView, ResetPasswordView, GoogleLoginView
 
 
 # Redirection de la racine vers Swagger
@@ -73,9 +73,6 @@ urlpatterns = [
     path("api/google-login/", GoogleLoginView.as_view(), name="google-login"),
     path("api/forgot-password/", ForgotPasswordView.as_view(), name="forgot-password"),
     path("api/reset-password/<uidb64>/<token>/", ResetPasswordView.as_view(), name="reset-password"),
-
-    # URL TEMPORAIRE pour tester l'email - À SUPPRIMER APRÈS TESTS
-    path('api/test-email/', TestEmailView.as_view(), name='test_email'),
 
     path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
