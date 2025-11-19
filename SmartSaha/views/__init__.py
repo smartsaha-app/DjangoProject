@@ -1,5 +1,5 @@
 from .parcels import  ParcelViewSet, ParcelPointViewSet, ParcelFullDataViewSet
-from  .users import UserViewSet, LoginView, SignupView,ForgotPasswordView,ResetPasswordView
+from  .users import UserViewSet, LoginView, SignupView,ForgotPasswordView,ResetPasswordView, TestEmailView
 from .cultures import CropViewSet,VarietyViewSet,StatusCropViewSet,ParcelCropViewSet
 from .tasks import TaskViewSet, TaskStatusViewSet , TaskPriorityViewSet, tasks_view
 from .yelds import YieldRecordViewSet,YieldAnalyticsView
