@@ -22,3 +22,5 @@ celery
 django-filter==23.3
 django-filter==23.3
 django-redis==6.0.0
+google-api-core
+google-genai

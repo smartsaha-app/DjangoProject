@@ -192,9 +192,9 @@ SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
 
 # API Keys
-WEATHER_API_KEY = 'bb9e11ef9ae046bf953133218252008'
-GEMINI_API_KEY = "AIzaSyCdoCiZjKkaNB979V39j5cWrY4iDQIDo-s"
-MISTRAL_API_KEY ="DJtpoXYg8Eq4mCmezx1TduXReHetuQpB"
+WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
 
 # Celery Configuration
 CELERY_BEAT_SCHEDULE = {
