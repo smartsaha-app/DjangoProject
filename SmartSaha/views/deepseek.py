@@ -4,47 +4,95 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
+from mistralai import Mistral
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from SmartSaha.services import DeepSeekClient
+from SmartSaha.services import DeepSeekClient, GeminiClient, WorkingAIClient, MistralRAGClient
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-deepseek = DeepSeekClient()
+# deepseek = DeepSeekClient()
+# gemini = GeminiClient()
+ai_assistant = WorkingAIClient()
+mistralai = MistralRAGClient()
+# class AgronomyAssistantAPIView(APIView):
+#     authentication_classes = [TokenAuthentication]
+#     permission_classes = [IsAuthenticated]
+#     def post(self, request):
+#         question = request.data.get("question")
+#         question_type = request.data.get("question_type", "general")
+#         parcel_id = request.data.get("parcel_id")
+#         crop_name = request.data.get("crop_name")
+#         user_modules = request.data.get("user_modules", {})
+#
+#         if not question:
+#             return Response({"error": "No question provided."}, status=status.HTTP_400_BAD_REQUEST)
+#
+#         # On passe tout à DeepSeekClient
+#         answer = gemini.ask(
+#             question=question,
+#             parcel_uuid=parcel_id,
+#             user_modules=user_modules
+#         )
+#
+#         return Response({
+#             "answer": answer,
+#             "meta": {
+#                 "question_type": question_type,
+#                 "parcel_id": parcel_id,
+#                 "crop_name": crop_name,
+#                 "modules": user_modules
+#             }
+#         }, status=status.HTTP_200_OK)
+
 
 class AgronomyAssistantAPIView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
+
     def post(self, request):
-        question = request.data.get("question")
-        question_type = request.data.get("question_type", "general")
-        parcel_id = request.data.get("parcel_id")
-        crop_name = request.data.get("crop_name")
-        user_modules = request.data.get("user_modules", {})
+        try:
+            # 1. Récupère les données
+            question = request.data.get("question")
+            question_type = request.data.get("question_type", "general")
+            parcel_id = request.data.get("parcel_id")
+            crop_name = request.data.get("crop_name")
+            user_modules = request.data.get("user_modules", {})
 
-        if not question:
-            return Response({"error": "No question provided."}, status=status.HTTP_400_BAD_REQUEST)
+            # 2. Validation
+            if not question:
+                return Response(
+                    {"error": "Aucune question fournie."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
-        # On passe tout à DeepSeekClient
-        answer = deepseek.ask(
-            question=question,
-            parcel_uuid=parcel_id,
-            user_modules=user_modules
-        )
+            # 3. Appel avec WorkingAIClient (gère automatiquement les rate limits)
+            answer = mistralai.ask(
+                question=question,
+                parcel_uuid=parcel_id,
+                user_modules=user_modules
+            )
 
-        return Response({
-            "answer": answer,
-            "meta": {
-                "question_type": question_type,
-                "parcel_id": parcel_id,
-                "crop_name": crop_name,
-                "modules": user_modules
-            }
-        }, status=status.HTTP_200_OK)
+            # 4. Réponse
+            return Response({
+                "answer": answer,
+                "meta": {
+                    "question_type": question_type,
+                    "parcel_id": parcel_id,
+                    "crop_name": crop_name,
+                    "modules": user_modules
+                }
+            }, status=status.HTTP_200_OK)
 
-@login_required(login_url="login")
+        except Exception as e:
+            # Gestion d'erreurs globale
+            return Response({
+                "error": f"Erreur interne: {str(e)}"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 def assistant_agronome_page(request):
     """
     Vue qui rend la page HTML avec le formulaire.
@@ -53,7 +101,6 @@ def assistant_agronome_page(request):
 
 
 @csrf_exempt
-@login_required(login_url="login")
 def assistant_agronome_api(request):
     """
     Vue qui reçoit la question, appelle le moteur IA et renvoie la réponse JSON.
@@ -74,7 +121,7 @@ def assistant_agronome_api(request):
             return JsonResponse({"error": "Champs obligatoires manquants"}, status=400)
 
             # On passe tout à DeepSeekClient
-        response = deepseek.ask(
+        response = mistralai.ask(
             question=question,
             parcel_uuid=parcel_id,
             user_modules=user_modules
@@ -83,3 +130,4 @@ def assistant_agronome_api(request):
         return JsonResponse(response, safe=False)
 
     return JsonResponse({"error": "Méthode non autorisée"}, status=405)
+

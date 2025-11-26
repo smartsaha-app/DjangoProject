@@ -6,6 +6,9 @@ from rest_framework import permissions
 from rest_framework.routers import DefaultRouter
 from django.shortcuts import redirect
 from django.contrib.auth import views as auth_views
+
+from SmartSaha.views.alerts import AlertViewSet
+from SmartSaha.views.chatbot import GeminiAssistantViewSet, MistralAssistantViewSet
 from suivi_evaluation.router import router as suivi_eval_router
 from SmartSaha.router import router as groups_router
 
@@ -15,9 +18,11 @@ from SmartSaha.views import (
     TaskPriorityViewSet, TaskStatusViewSet, YieldRecordViewSet, SoilDataView,
     ClimateDataView, DataViewSet, ParcelFullDataViewSet, AgronomyAssistantAPIView,
     YieldForecastView, YieldAnalyticsView, DashboardViewSet, dashboard, tasks_view,
-     assistant_agronome_page, assistant_agronome_api, WeatherDataViewSet, WeatherCollectionViewSet, AgriculturalAlertViewSet
+    assistant_agronome_page, assistant_agronome_api, WeatherDataViewSet, WeatherCollectionViewSet,
+    AgriculturalAlertViewSet, AgriAssistantViewSet
 )
-from SmartSaha.views.users import ForgotPasswordView, ResetPasswordView, GoogleLoginView, TestEmailView
+from SmartSaha.views.users import ForgotPasswordView, ResetPasswordView, GoogleLoginView
+
 
 
 # Redirection de la racine vers Swagger
@@ -34,7 +39,7 @@ schema_view = get_schema_view(
         license=openapi.License(name="MIT License"),
     ),
     public=True,
-    permission_classes=(permissions.AllowAny,),
+    permission_classes=(permissions.AllowAny),
 )
 
 # Router API principal
@@ -61,6 +66,13 @@ router.register(r'agricultural-alerts', AgriculturalAlertViewSet, basename='agri
 
 router.register(r'weather-collection', WeatherCollectionViewSet, basename='weathercollection')
 
+router.register(r'alerts', AlertViewSet, basename='alert')
+
+router.register(r'assistant', AgriAssistantViewSet, basename='assistant')
+
+router.register(r'gemini-assistant', GeminiAssistantViewSet, basename='gemini-assistant')
+
+router.register(r'mistral-assistant', MistralAssistantViewSet, basename='mistral-assistant')
 
 urlpatterns = [
     path('', redirect_to_swagger, name='home'),
@@ -73,9 +85,6 @@ urlpatterns = [
     path("api/google-login/", GoogleLoginView.as_view(), name="google-login"),
     path("api/forgot-password/", ForgotPasswordView.as_view(), name="forgot-password"),
     path("api/reset-password/<uidb64>/<token>/", ResetPasswordView.as_view(), name="reset-password"),
-
-    # URL TEMPORAIRE pour tester l'email - À SUPPRIMER APRÈS TESTS
-    path('api/test-email/', TestEmailView.as_view(), name='test_email'),
 
     path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),

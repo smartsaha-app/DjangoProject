@@ -5,3 +5,4 @@ from .tasks import TaskSerializer, TaskStatusSerializer, TaskPrioritySerializer
 from .yelds import YieldRecordSerializer
 from .groups import GroupSerializer, GroupRoleSerializer, GroupTypeSerializer, MemberGroupSerializer, OrganisationSerializer
 from .weather import WeatherDataSerializer,AgriculturalAlertSerializer
+from .alerts import ParcelShortSerializer, AlertSerializer
