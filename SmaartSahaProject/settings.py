@@ -4,10 +4,33 @@ Django settings for SmaartSahaProject project.
 
 import os
 from pathlib import Path
+import environ
 from celery.schedules import crontab
+from dotenv import load_dotenv
+load_dotenv()
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+import dj_database_url
+import os
+
+DATABASES = {
+    "default": dj_database_url.config(
+        default=os.environ.get("DATABASE_URL"),
+        conn_max_age=600,
+        ssl_require=True
+    )
+}
+
+import os
+from pathlib import Path
+
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# API Key OpenRouter
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+
+# Vérification pour debug (à enlever en prod)
+if not OPENROUTER_API_KEY:
+    print("⚠️ OPENROUTER_API_KEY n'est pas défini !")
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-a@(viw3go=9ig9b91==haz)npz@r939(%(d172ho@sri+vj)of'
@@ -81,16 +104,16 @@ WSGI_APPLICATION = 'SmaartSahaProject.wsgi.application'
 #     }
 # }
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'geodb',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': 'localhost',
-        'PORT': '5433',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'geodb',
+#         'USER': 'postgres',
+#         'PASSWORD': 'postgres',
+#         'HOST': 'localhost',
+#         'PORT': '5433',
+#     }
+# }
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -169,7 +192,6 @@ SESSION_CACHE_ALIAS = "default"
 
 # API Keys
 WEATHER_API_KEY = 'bb9e11ef9ae046bf953133218252008'
-OPENROUTER_API_KEY = "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"
 GEMINI_API_KEY = "AIzaSyCdoCiZjKkaNB979V39j5cWrY4iDQIDo-s"
 MISTRAL_API_KEY ="DJtpoXYg8Eq4mCmezx1TduXReHetuQpB"
 
