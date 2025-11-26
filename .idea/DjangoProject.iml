@@ -19,7 +19,6 @@
     <orderEntry type="jdk" jdkName="Python 3.12" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="fararano_mirindra_2" />
-    <orderEntry type="module" module-name="fararano_mirindra_2" />
   </component>
   <component name="PackageRequirementsSettings">
     <option name="removeUnused" value="true" />

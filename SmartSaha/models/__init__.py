@@ -7,3 +7,4 @@ from .yelds import YieldRecord,YieldForecast
 from .posts import Post, PostType, PostCurrency
 from .externalData import ClimateData,SoilData, WeatherData, BaseWeatherModel, AgriculturalAlert, AgriculturalAlertManager
 from .groups import Organisation, GroupType, GroupRole, Group, MemberGroup
+from .alerts import Alert
