@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from django.utils import timezone
 
 from SmartSaha.services import SimpleAIClient
-
+from rest_framework.permissions import AllowAny
 
 class AgriAssistantViewSet(viewsets.ViewSet):
     """
