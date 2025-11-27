@@ -188,6 +188,7 @@ from SmartSaha.services import MistralAgentClient
 
 
 class MistralAssistantViewSet(viewsets.ViewSet):
+    permission_classes = [AllowAny]
     """
     ViewSet public pour Mistral - Sans authentification
     """
