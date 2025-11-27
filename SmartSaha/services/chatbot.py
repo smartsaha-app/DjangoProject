@@ -79,6 +79,8 @@ Reponds toujours de maniere précise, pratique, court et adaptee aux conditions 
 - Si tu ne sais pas, indique clairement que l’information n’est pas disponible.
 """
 
+import requests
+
 
 class RobustGeminiClient:
     def __init__(self):
@@ -86,61 +88,76 @@ class RobustGeminiClient:
         if not self.api_key:
             raise ValueError("GEMINI_API_KEY manquant")
 
-        self.client = genai.Client(api_key=self.api_key)
-
-        # 🎯 MODÈLES GEMINI QUI EXISTENT VRAIMENT
-        self.models = [
-            "gemini-2.0-flash-exp",  # Modèle expérimental rapide
-            "gemini-1.5-flash-8b",  # Version 8B de Flash
-            "gemini-1.5-pro",  # Modèle pro
-            "gemini-1.0-pro"  # Modèle de base
-        ]
+        # 🎯 UNIQUEMENT le modèle de votre URL
+        self.model = "gemini-2.0-flash"
+        self.base_url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent"
 
     def ask(self, question: str):
-        """Essaie plusieurs modèles Gemini jusqu'à ce qu'un fonctionne"""
+        """Utilise uniquement le modèle gemini-2.0-flash"""
         full_prompt = f"{BASE_PROMPT}\n\nQuestion: {question}\nRéponse:"
 
-        for model in self.models:
-            try:
-                print(f"🔄 Essai Gemini avec: {model}")
-
-                response = self.client.models.generate_content(
-                    model=model,
-                    contents=full_prompt
-                )
-
-                print(f"✅ Succès avec {model}")
-                return response.text
-
-            except Exception as e:
-                error_msg = str(e)
-                print(f"❌ {model} échoué: {error_msg}")
-
-                # Si c'est une erreur 404 (modèle non trouvé), on continue
-                if "404" in error_msg or "not found" in error_msg.lower():
-                    continue
-                # Si c'est une erreur de quota, on continue aussi
-                elif "quota" in error_msg.lower() or "429" in error_msg:
-                    continue
-                else:
-                    # Pour d'autres erreurs, on retourne l'erreur
-                    return f"Erreur API Gemini ({model}): {error_msg}"
-
-        return "Désolé, aucun modèle Gemini n'est disponible pour le moment."
-
-    def get_available_models(self):
-        """Liste les modèles disponibles"""
         try:
-            models = self.client.models.list()
-            available_models = [model.name for model in models]
-            print("📋 Modèles Gemini disponibles:", available_models)
-            return available_models
+            print(f"🔄 Appel Gemini avec: {self.model}")
+
+            # Construction de l'URL avec la clé
+            url = f"{self.base_url}?key={self.api_key}"
+
+            # Préparation des données
+            payload = {
+                "contents": [{
+                    "parts": [{
+                        "text": full_prompt
+                    }]
+                }]
+            }
+
+            # Headers
+            headers = {
+                "Content-Type": "application/json"
+            }
+
+            # Appel API - ICI on utilise requests qui est maintenant importé
+            response = requests.post(
+                url,
+                json=payload,
+                headers=headers,
+                timeout=30
+            )
+
+            # Vérification de la réponse
+            if response.status_code == 200:
+                result = response.json()
+                print(f"✅ Succès avec {self.model}")
+
+                # Extraction du texte de réponse
+                if "candidates" in result and len(result["candidates"]) > 0:
+                    text = result["candidates"][0]["content"]["parts"][0]["text"]
+                    return text
+                else:
+                    return "Erreur: Aucune réponse générée par le modèle"
+
+            else:
+                error_msg = f"Status {response.status_code}: {response.text}"
+                print(f"❌ {self.model} échoué: {error_msg}")
+                return f"Erreur API Gemini: {error_msg}"
+
+        except requests.exceptions.Timeout:
+            error_msg = "Timeout - API trop lente"
+            print(f"⏰ {error_msg}")
+            return f"Erreur: {error_msg}"
         except Exception as e:
-            print(f"❌ Erreur liste modèles: {e}")
-            return []
+            error_msg = str(e)
+            print(f"❌ Erreur avec {self.model}: {error_msg}")
+            return f"Erreur: {error_msg}"
 
 
-
+# ✅ Utilisation simple
+try:
+    gemini_client = RobustGeminiClient()
+    reponse = gemini_client.ask("Quand planter du riz à Madagascar ?")
+    print(reponse)
+except Exception as e:
+    print(f"Erreur initialisation: {e}")
 
 class MistralAgentClient:
     def __init__(self):

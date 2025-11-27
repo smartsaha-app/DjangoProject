@@ -104,7 +104,7 @@ WSGI_APPLICATION = 'SmaartSahaProject.wsgi.application'
 #         },
 #     }
 # }
-
+#
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
@@ -195,6 +195,7 @@ SESSION_CACHE_ALIAS = "default"
 WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
+
 
 # Celery Configuration
 CELERY_BEAT_SCHEDULE = {
