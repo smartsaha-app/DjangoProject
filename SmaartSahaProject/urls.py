@@ -39,7 +39,7 @@ schema_view = get_schema_view(
         license=openapi.License(name="MIT License"),
     ),
     public=True,
-    permission_classes=(permissions.AllowAny),
+    permission_classes=[permissions.AllowAny],
 )
 
 # Router API principal
